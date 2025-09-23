@@ -12,9 +12,10 @@
   status = 200
 
 [[redirects]]
-  from = "/share"
-  to = "/share.html"
-  status = 200
+from = "/share"
+to = "/share.html"
+status = 200
+force = true
 
 
 [[headers]]

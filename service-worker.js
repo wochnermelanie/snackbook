@@ -1,5 +1,5 @@
 /* service-worker.js */
-const CACHE_VERSION = 'v12';
+const CACHE_VERSION = 'v13';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const STATIC_ASSETS = ['/', '/index.html', '/tailwind.build.css'];
 
