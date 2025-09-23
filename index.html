@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snackbook</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json?v=25" />
+<meta name="theme-color" content="#0b1220" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Snackbook" />
+<link rel="apple-touch-icon" href="/app-icon-192.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/tailwind.build.css" />
+
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script src="https://unpkg.com/localforage/dist/localforage.min.js"></script>
+
+<style>
+  :root{color-scheme:light dark}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  .card{transition:transform .12s ease, box-shadow .12s ease; cursor:pointer}
+  .card:hover{transform:translateY(-2px)}
+  .sheet{position:fixed;left:0;right:0;bottom:0;transform:translateY(100%);transition:transform .18s ease;background:var(--bg,#fff);border-top-left-radius:16px;border-top-right-radius:16px;box-shadow:0 -20px 40px rgba(0,0,0,.12)}
+  .sheet.open{transform:translateY(0)}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s}
+  .backdrop.show{opacity:1;pointer-events:auto}
+  .tab-btn[aria-current="true"]{background:#0b1220;color:#fff}
+  .grid-btn[aria-pressed="true"]{background:#0b1220;color:#fff}
+  .hidden-el{display:none}
+  .bullet li{position:relative;padding-left:1.25rem}
+  .bullet li::before{content:"•";position:absolute;left:0;top:0;color:#0f172a}
+  main{padding-bottom:calc(7rem + env(safe-area-inset-bottom))}
+</style>
+</head>
+<body class="bg-white text-gray-900">
+
+<header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+    <!-- Größeres Logo -->
+    <a href="/" class="shrink-0 inline-flex items-center" aria-label="Snackbook">
+      <img src="/logo.svg" alt="Snackbook"
+           class="h-12 md:h-14 w-auto max-w-[300px] block select-none origin-left scale-[1.3]" />
+    </a>
+    <div class="flex-1"></div>
+    <button id="installBtn" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg border">
+      <i data-feather="download"></i><span>App installieren</span>
+    </button>
+    <button id="addFab" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white">
+      <i data-feather="plus"></i><span>Hinzufügen</span>
+    </button>
+  </div>
+</header>
+
+<section id="toolbar" class="max-w-6xl mx-auto px-4 pt-4">
+  <div class="relative">
+    <input id="q" class="w-full p-3 pl-10 rounded-xl border focus:outline-none focus:ring-2 focus:ring-gray-900/20" placeholder="Suche nach Gericht oder Zutat…">
+    <i data-feather="search" class="absolute left-3 top-3.5 text-slate-500"></i>
+  </div>
+  <div class="mt-3 flex items-center justify-between">
+    <div class="text-sm text-slate-500"><span id="count">0</span> Rezepte</div>
+    <div class="flex items-center gap-2">
+      <button id="sortBtn" class="px-3 py-2 rounded-lg border text-sm">Neueste</button>
+      <button id="gridBtn" class="grid-btn px-3 py-2 rounded-lg border text-sm" aria-pressed="true"><i data-feather="grid"></i></button>
+    </div>
+  </div>
+</section>
+
+<main class="max-w-6xl mx-auto px-4 py-4">
+  <div id="view-recipes">
+    <div id="grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+  </div>
+
+  <div id="view-collections" class="hidden-el">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-semibold">Sammlungen</h2>
+      <select id="colSort" class="border rounded-lg p-2 text-sm">
+        <option value="new">Neueste</option>
+        <option value="az">A–Z</option>
+        <option value="count">Meiste Rezepte</option>
+      </select>
+    </div>
+    <div id="collections" class="grid gap-6"></div>
+  </div>
+
+  <div id="view-account" class="hidden-el">
+    <h2 class="text-xl font-semibold mb-3">Einstellungen</h2>
+    <div class="grid gap-4">
+      <section class="border rounded-xl p-4">
+        <h3 class="font-semibold mb-2">Design</h3>
+        <select id="themeSel" class="border rounded-lg p-2">
+          <option value="light">Hell</option>
+          <option value="dark">Dunkel</option>
+          <option value="system">System</option>
+        </select>
+      </section>
+      <section class="border rounded-xl p-4">
+        <h3 class="font-semibold mb-1">Daten</h3>
+        <p class="text-sm text-slate-500 mb-2">Exportiert/Importiert alle gespeicherten Rezepte als JSON.</p>
+        <div class="flex gap-2">
+          <button id="exportData" class="px-3 py-2 rounded-lg border">Exportieren</button>
+          <label class="px-3 py-2 rounded-lg border cursor-pointer">
+            Importieren <input id="importData" type="file" accept="application/json" class="hidden">
+          </label>
+          <button id="resetApp" class="px-3 py-2 rounded-lg border text-rose-600">Zurücksetzen</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<nav class="fixed left-0 right-0 bottom-0 bg-white border-t">
+  <div class="max-w-6xl mx-auto grid grid-cols-3 text-sm" style="padding-bottom: env(safe-area-inset-bottom)">
+    <button class="py-2 flex flex-col items-center tab-btn" data-tab="recipes" aria-current="true">
+      <i data-feather="coffee"></i><span>Rezepte</span>
+    </button>
+    <button class="py-2 flex flex-col items-center tab-btn" data-tab="collections">
+      <i data-feather="bookmark"></i><span>Sammlungen</span>
+    </button>
+    <button class="py-2 flex flex-col items-center tab-btn" data-tab="account">
+      <i data-feather="user"></i><span>Konto</span>
+    </button>
+  </div>
+</nav>
+
+<!-- FAB mobil -->
+<button id="fab" class="sm:hidden fixed right-4 bottom-24 w-12 h-12 rounded-full bg-emerald-500 text-white grid place-items-center shadow-lg">
+  <i data-feather="plus"></i>
+</button>
+
+<!-- Install-Banner mobil -->
+<div id="installBanner" class="hidden fixed left-3 right-3 bottom-[5.5rem] z-30 bg-white border rounded-xl shadow p-3 flex items-center justify-between">
+  <div class="text-sm">Snackbook als App installieren?</div>
+  <div class="flex gap-2">
+    <button id="installLater" class="px-3 py-1.5 rounded-lg border text-sm">Später</button>
+    <button id="installNow" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm">Installieren</button>
+  </div>
+</div>
+
+<div id="backdrop" class="backdrop"></div>
+
+<!-- Add Sheet -->
+<div id="addSheet" class="sheet">
+  <div class="p-3 border-b flex justify-center"><div class="w-10 h-1.5 rounded-full bg-gray-200"></div></div>
+  <div class="p-4 space-y-3">
+    <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="image"><i data-feather="camera"></i><span>Rezept aus Bild</span></button>
+    <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="link"><i data-feather="link"></i><span>Rezept-Link</span></button>
+    <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="manual"><i data-feather="edit-2"></i><span>Rezept hinzufügen</span></button>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div id="importModal" class="fixed inset-0 hidden items-end sm:items-center justify-center">
+  <div class="absolute inset-0 bg-black/40" data-close></div>
+  <div class="relative bg-white w-full sm:w-[520px] rounded-t-2xl sm:rounded-2xl p-5">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-semibold">Rezept-Link speichern</h3>
+      <button data-close class="text-slate-500"><i data-feather="x"></i></button>
+    </div>
+    <input id="importUrl" class="w-full p-3 rounded-lg border" placeholder="https://…">
+    <div class="flex justify-end gap-2 mt-3">
+      <button data-close class="px-3 py-2 rounded-lg border">Abbrechen</button>
+      <button id="doImport" class="px-3 py-2 rounded-lg bg-gray-900 text-white">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Editor Modal -->
+<div id="editorModal" class="fixed inset-0 hidden items-end sm:items-center justify-center">
+  <div class="absolute inset-0 bg-black/40" data-close></div>
+  <div class="relative bg-white w-full sm:w-[720px] rounded-t-2xl sm:rounded-2xl p-5">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-semibold">Rezept bearbeiten</h3>
+      <button data-close class="text-slate-500"><i data-feather="x"></i></button>
+    </div>
+    <div class="grid gap-3">
+      <input id="e-title" class="w-full p-3 rounded-lg border" placeholder="Titel">
+      <input id="e-image" class="w-full p-3 rounded-lg border" placeholder="Bild-URL (optional)">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-slate-500">Zutaten (eine je Zeile)</label>
+          <textarea id="e-ingredients" rows="8" class="w-full p-3 rounded-lg border" placeholder="z.B. 200 g Mehl&#10;3 Eier&#10;1 TL Salz"></textarea>
+        </div>
+        <div>
+          <label class="text-sm text-slate-500">Schritte (eine je Zeile)</label>
+          <textarea id="e-steps" rows="8" class="w-full p-3 rounded-lg border" placeholder="z.B. Ofen vorheizen&#10;Teig rühren&#10;Backen 25–30 Min"></textarea>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <label>Portionen:</label>
+        <input id="e-servings" type="number" min="1" value="2" class="w-20 p-2 rounded-lg border">
+      </div>
+      <div class="flex justify-end gap-2 mt-2">
+        <button data-close class="px-3 py-2 rounded-lg border">Abbrechen</button>
+        <button id="e-save" class="px-3 py-2 rounded-lg bg-gray-900 text-white">Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail-Sheet -->
+<div id="detail" class="sheet">
+  <div class="p-4 border-b flex items-center gap-2 justify-between">
+    <div class="flex items-center gap-2">
+      <span id="d-source" class="hidden inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">quelle</span>
+      <h2 id="d-title" class="font-semibold text-lg">Titel</h2>
+    </div>
+    <button id="d-close" class="text-slate-500"><i data-feather="x"></i></button>
+  </div>
+  <div class="p-4 grid md:grid-cols-3 gap-4">
+    <div class="md:col-span-1">
+      <div class="relative">
+        <img id="d-image" class="w-full aspect-[4/3] object-cover rounded-xl bg-gray-100" alt="">
+        <div class="absolute top-2 right-2 flex gap-2" data-actions>
+          <button id="editTitleBtn" class="p-2 rounded-lg bg-white/90 border" title="Titel ändern"><i data-feather="edit-2"></i></button>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 mt-3">
+        <div class="inline-flex items-center gap-2 text-sm">
+          <span>Portionen:</span>
+          <button id="servingsMinus" class="w-7 h-7 grid place-items-center rounded border">−</button>
+          <span id="servingsNum" class="min-w-[2ch] text-center font-semibold">1</span>
+          <button id="servingsPlus" class="w-7 h-7 grid place-items-center rounded border">+</button>
+        </div>
+        <div id="slicesBox" class="hidden inline-flex items-center gap-2 text-sm">
+          <span>Stücke:</span>
+          <button id="slicesMinus" class="w-7 h-7 grid place-items-center rounded border">−</button>
+          <span id="slicesNum" class="min-w-[2ch] text-center font-semibold">12</span>
+          <button id="slicesPlus" class="w-7 h-7 grid place-items-center rounded border">+</button>
+        </div>
+      </div>
+      <div class="mt-3 text-sm text-slate-500" id="d-time"></div>
+    </div>
+    <div class="md:col-span-2">
+      <div class="flex gap-2 mb-3">
+        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="ingredients" aria-current="true">Zutaten</button>
+        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="instructions">Zubereitung</button>
+        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="nutrition">Nährwerte</button>
+        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="notes">Notizen</button>
+      </div>
+      <div id="pane-ingredients"></div>
+      <div id="pane-instructions" class="hidden"></div>
+      <div id="pane-nutrition" class="hidden"></div>
+      <div id="pane-notes" class="hidden">
+        <textarea id="d-notes" rows="5" class="w-full p-3 border rounded-lg" placeholder="Notizen zum Rezept"></textarea>
+        <div class="flex justify-end mt-2">
+          <button id="saveNotes" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm">Notizen speichern</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 mt-3">Hinweis: Werte sind Schätzungen. Prüfe Garzeiten/Temperaturen.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Storage ===== */
+localforage.config({ name:'snackbook', storeName:'recipes' });
+const DB='recipes';
+const load=()=>localforage.getItem(DB).then(v=>v||[]);
+const save=v=>localforage.setItem(DB,v);
+
+/* ===== Utils ===== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]||c));
+const ago = ms => { const d=Math.floor((Date.now()-ms)/60000); if(d<60) return d+'m'; const h=Math.floor(d/60); if(h<24) return h+'h'; return Math.floor(h/24)+'d'; };
+const platform = url => url?.includes('instagram')?'instagram':url?.includes('facebook')?'facebook':url?.includes('tiktok')?'tiktok':url?'link':'';
+
+/* ===== Theme ===== */
+const THEME_KEY='snackbook:theme';
+function applyTheme(v){
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = v==='dark' || (v==='system' && prefersDark);
+  document.documentElement.classList.toggle('dark', isDark);
+  document.body.style.setProperty('--bg', getComputedStyle(document.body).backgroundColor);
+}
+$('#themeSel').value = localStorage.getItem(THEME_KEY) || 'light';
+applyTheme($('#themeSel').value);
+$('#themeSel').onchange = e=>{ localStorage.setItem(THEME_KEY, e.target.value); applyTheme(e.target.value); };
+window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  const v = localStorage.getItem(THEME_KEY) || 'light'; if (v==='system') applyTheme('system');
+});
+
+/* ===== Tabs ===== */
+function showTab(tab){
+  for(const t of ['recipes','collections','account']){
+    $('#view-'+t).classList.toggle('hidden-el', t!==tab);
+    $(`.tab-btn[data-tab="${t}"]`).setAttribute('aria-current', t===tab ? 'true' : 'false');
+  }
+  $('#toolbar').classList.toggle('hidden', tab!=='recipes');
+  if(tab==='recipes') renderRecipes();
+  if(tab==='collections') renderCollections();
+}
+$$('.tab-btn').forEach(b=> b.onclick=()=> showTab(b.dataset.tab));
+
+/* ===== State ===== */
+let list=[], gridIsCards=true, sortNewest=true, openId=null;
+
+/* ===== Mengen/Portionen ===== */
+function parseQty(line){
+  const s=String(line).toLowerCase().replace(',','.');
+  const frac = {'½':0.5,'¼':0.25,'¾':0.75};
+  let m = s.match(/(\d+(?:\.\d+)?)|[½¼¾]/);
+  let qty = m ? (frac[m[0]] ?? parseFloat(m[0])) : null;
+  m = s.match(/\b(kg|g|l|ml|el|tl|prise|päckchen|packung|dose|dosen|stück|stk|zehe|ei|eier)\b/);
+  const unit = m ? m[1] : null;
+  return {qty, unit};
+}
+function formatQty(q, unit){
+  if(q==null) return '';
+  const n = Math.round(q*10)/10;
+  return `${n}${unit?(' '+unit):''}`;
+}
+function scaleLine(line, factor){
+  const {qty, unit} = parseQty(line);
+  if(qty==null) return esc(line);
+  let q = qty, u = unit;
+  if(u==='kg'){ q*=1000; u='g'; }
+  if(u==='l'){ q*=1000; u='ml'; }
+  q = q*factor;
+  const repl = formatQty(q, u);
+  return esc(String(line).replace(/(\d+(?:\.\d+)?|[½¼¾])(\s*\w+)?/, repl));
+}
+
+/* ===== Nährwerte UI ===== */
+function nutritionUI(r){
+  const s = Math.max(1, Number(r.servings||1));
+  const perPortion = {
+    kcal: r.kcal!=null? Math.round(r.kcal/s) : null,
+    carbs: r.carbs!=null? Math.round(r.carbs/s) : null,
+    protein: r.protein!=null? Math.round(r.protein/s) : null,
+    fat: r.fat!=null? Math.round(r.fat/s) : null
+  };
+  const row = (k,v,u='')=>`<div class="flex justify-between py-2 border-b"><span>${k}</span><span class="text-slate-500">${v!=null?v+(u?(' '+u):''):'—'}</span></div>`;
+  // Kuchen pro Stück (optional)
+  const cake = /kuchen|torte|cake|muffin/i.test( (r.title||'') + ' ' + (r.ingredients||[]).join(' ') );
+  const pieces = Math.max(1, Number(r.slices||12));
+  const perSlice = cake && r.kcal!=null ? {
+    kcal: Math.round(r.kcal/pieces),
+    carbs: r.carbs!=null? Math.round(r.carbs/pieces) : null,
+    protein: r.protein!=null? Math.round(r.protein/pieces) : null,
+    fat: r.fat!=null? Math.round(r.fat/pieces) : null
+  } : null;
+
+  return `<div class="rounded-xl border">
+    <div class="px-3 py-2 font-semibold bg-slate-50">Pro Portion</div>
+    ${row('Kalorien', perPortion.kcal, 'kcal')}
+    ${row('Kohlenhydrate', perPortion.carbs, 'g')}
+    ${row('Protein', perPortion.protein, 'g')}
+    ${row('Fett', perPortion.fat, 'g')}
+    ${cake ? `<div class="px-3 py-2 font-semibold bg-slate-50">Pro Stück (x${pieces})</div>
+      ${row('Kalorien', perSlice.kcal, 'kcal')}
+      ${row('Kohlenhydrate', perSlice.carbs, 'g')}
+      ${row('Protein', perSlice.protein, 'g')}
+      ${row('Fett', perSlice.fat, 'g')}` : ''}
+    <div class="px-3 py-2 font-semibold bg-slate-50">Gesamt</div>
+    ${row('Kalorien', r.kcal, 'kcal')}
+    ${row('Kohlenhydrate', r.carbs, 'g')}
+    ${row('Protein', r.protein, 'g')}
+    ${row('Fett', r.fat, 'g')}
+  </div>`;
+}
+
+/* ===== Auto-Tags (simpel) ===== */
+function autoTags(rec){
+  const t=new Set(rec.tags||[]);
+  const ings=(rec.ingredients||[]).join(' ').toLowerCase();
+  const p = { protein: rec.protein!=null && rec.servings? Math.round(rec.protein/rec.servings) : null };
+  const isVegan = !/(fleisch|huhn|hähnchen|pute|rind|schwein|fisch|lachs|ei|eier|milch|käse|kaese|butter|joghurt|quark)/.test(ings);
+  const isVegetarian = !/(fleisch|huhn|hähnchen|pute|rind|schwein|fisch|lachs)/.test(ings);
+  if(isVegan) t.add('Vegan'); else if(isVegetarian) t.add('Vegetarisch');
+  if(/nudel|pasta|spaghetti|penne/.test(ings)) t.add('Pasta');
+  if(/huhn|hähnchen|pute|putenbrust/.test(ings)) t.add('Geflügel');
+  if(/kuchen|torte|dessert|zucker|schokolade/.test(ings)) t.add('Dessert');
+  if(p.protein!=null && p.protein>=25) t.add('High Protein');
+  if(t.size===0) t.add('Unsortiert');
+  return Array.from(t);
+}
+
+/* ===== Karten (ohne kcal vorne) ===== */
+function recipeCard(r){
+  const badge = platform(r.source);
+  return `
+  <article class="card bg-white rounded-2xl overflow-hidden border" data-id="${r.id}">
+    <div class="relative">
+      ${r.image?`<img src="${esc(r.image)}" class="w-full aspect-[4/3] object-cover">`:`<div class="w-full aspect-[4/3] bg-gray-100 grid place-items-center text-slate-500">Kein Bild</div>`}
+      <div class="absolute top-2 right-2 flex gap-2" data-actions>
+        <button data-edit class="p-2 rounded-lg bg-white/90 border" title="Umbenennen"><i data-feather="edit-2"></i></button>
+        <button data-del class="p-2 rounded-lg bg-white/90 border" title="Löschen"><i data-feather="trash-2"></i></button>
+      </div>
+      ${badge?`<span class="absolute left-2 bottom-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/90 text-slate-800 shadow">${badge==='instagram'?'📷 instagram':'🔗 link'}</span>`:''}
+      ${r.createdAt?`<span class="absolute right-2 bottom-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-black/80 text-white">${ago(r.createdAt)}</span>`:''}
+    </div>
+    <div class="p-3"><h3 class="font-semibold leading-snug">${esc(r.title)}</h3></div>
+  </article>`;
+}
+
+function renderRecipes(){
+  let data=[...list];
+  const q = $('#q').value.trim().toLowerCase();
+  if (q) data = data.filter(r =>
+    (r.title||'').toLowerCase().includes(q) ||
+    (r.ingredients||[]).some(i => i.toLowerCase().includes(q)) ||
+    (r.tags||[]).some(t => t.toLowerCase().includes(q))
+  );
+  data.sort((a,b)=> sortNewest ? b.createdAt - a.createdAt : a.createdAt - b.createdAt);
+  $('#count').textContent=data.length;
+  const grid=$('#grid');
+  grid.className = gridIsCards ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-2';
+  grid.innerHTML = data.length ? data.map(recipeCard).join('') :
+    `<div class="col-span-full border border-dashed rounded-2xl p-10 text-center">
+       <p class="text-slate-500 mb-3">Noch keine Rezepte</p>
+       <button id="ctaAdd" class="px-3 py-2 rounded-lg bg-gray-900 text-white">Hinzufügen</button>
+     </div>`;
+  feather.replace();
+  bindRecipeGrid();
+}
+function bindRecipeGrid(){
+  const grid = document.getElementById('grid');
+  grid.onclick = async (e) => {
+    const card = e.target.closest('[data-id]'); if (!card) return;
+    const id = card.dataset.id;
+    const r = list.find(x => x.id === id); if (!r) return;
+
+    const btn = e.target.closest('[data-actions] button');
+    if (btn?.hasAttribute('data-edit')) { openRename(r); e.stopPropagation(); return; }
+    if (btn?.hasAttribute('data-del'))  {
+      if (!confirm('Rezept löschen?')) return;
+      list = list.filter(x => x.id !== id); await save(list); renderRecipes(); return;
+    }
+    openDetail(r);
+  };
+  document.getElementById('ctaAdd')?.addEventListener('click', openAdd);
+}
+
+/* ===== Collections ===== */
+function buildCollections(){
+  const map = new Map();
+  for (const r of list){
+    const tags = (r.tags&&r.tags.length?r.tags:['Unsortiert']);
+    for (const t of tags){
+      if(!map.has(t)) map.set(t,[]);
+      map.get(t).push(r);
+    }
+  }
+  return Array.from(map.entries()).map(([name,items])=>({name,items}));
+}
+function renderCollections(){
+  const groups = buildCollections();
+  const sort = $('#colSort').value;
+  if (sort==='az') groups.sort((a,b)=>a.name.localeCompare(b.name));
+  if (sort==='count') groups.sort((a,b)=>b.items.length - a.items.length);
+  if (sort==='new') groups.sort((a,b)=> (b.items[0]?.createdAt||0) - (a.items[0]?.createdAt||0));
+  $('#collections').innerHTML = groups.map(g => `
+    <section>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-semibold">${esc(g.name)}</h3>
+        <div class="text-sm text-slate-500">${g.items.length} Rezepte</div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        ${g.items.slice(0,6).map(recipeCard).join('')}
+      </div>
+    </section>
+  `).join('');
+  feather.replace();
+}
+
+/* ===== Add / Import ===== */
+const backdrop=$('#backdrop'), addSheet=$('#addSheet');
+function openAdd(){ addSheet.classList.add('open'); backdrop.classList.add('show'); }
+function closeAdd(){ addSheet.classList.remove('open'); backdrop.classList.remove('show'); }
+$('#fab').onclick=openAdd; $('#addFab').onclick=openAdd; backdrop.onclick=closeAdd;
+
+$('#addSheet [data-action="link"]').onclick=()=>{ closeAdd(); openImport(); };
+$('#addSheet [data-action="manual"]').onclick=()=>{ closeAdd(); openEditor(); };
+$('#addSheet [data-action="image"]').onclick=()=>{ closeAdd(); pickImage(); };
+
+const importModal=$('#importModal');
+function openImport(){ importModal.classList.remove('hidden'); importModal.classList.add('flex'); $('#importUrl').focus(); }
+function closeImport(){ importModal.classList.add('hidden'); importModal.classList.remove('flex'); }
+$$('#importModal [data-close]').forEach(b=> b.onclick=closeImport);
+
+document.getElementById('doImport').onclick = async () => {
+  const url = document.getElementById('importUrl').value.trim(); if (!url) return;
+  const btn = document.getElementById('doImport');
+  btn.disabled = true; btn.textContent = 'Speichere…';
+  try{
+    const isIG = /instagram\.com\/(p|reel|tv)\//.test(url);
+    const endpoint = isIG ? '/.netlify/functions/insta' : '/.netlify/functions/extract';
+
+    const r = await fetch(endpoint,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url}) });
+    const data = r.ok ? await r.json() : {};
+    const steps  = Array.isArray(data.steps)? data.steps : [];
+    const ings   = Array.isArray(data.ingredients)? data.ingredients : [];
+    const baseServ = Math.max(1, Number(data.servings||2));
+
+    // Gesamt-Nährwerte (wie gehabt)
+    const macros = await fetch('/.netlify/functions/nutrition', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ingredients: ings, servings: baseServ })
+    }).then(r=>r.json()).catch(()=>({}));
+
+    const rec = {
+      id: uid(), title: data.title || url, image: data.image || '',
+      ingredients: ings, steps, tags: data.tags || [],
+      source: url, createdAt: Date.now(), notes:'',
+      baseServings: baseServ, servings: baseServ, slices: 12,
+      kcal: macros.kcal ?? null, carbs: macros.carbs ?? null,
+      protein: macros.protein ?? null, fat: macros.fat ?? null
+    };
+	
+	   // Bei Instagram: falls trotzdem keine Caption/Listen erkannt -> Editor öffnen
+    if (isIG && (!ings.length && !steps.length)) {
+      openEditor(rec); // vorbefüllt mit Titel/Bild
+    } else {
+      rec.tags = autoTags(rec);
+      list.unshift(rec); await save(list);
+      closeImport(); renderRecipes(); openDetail(rec);
+    }
+  }catch(e){ alert('Import fehlgeschlagen.'); }
+  finally{ btn.disabled=false; btn.textContent='Speichern'; }
+};
+
+/* ===== Editor ===== */
+const editorModal = $('#editorModal');
+function openEditor(prefill={}){
+  editorModal.classList.remove('hidden'); editorModal.classList.add('flex');
+  $('#e-title').value = prefill.title || '';
+  $('#e-image').value = prefill.image || '';
+  $('#e-ingredients').value = (prefill.ingredients||[]).join('\n');
+  $('#e-steps').value = (prefill.steps||[]).join('\n');
+  $('#e-servings').value = prefill.baseServings || prefill.servings || 2;
+
+  const closeAll = ()=>{ editorModal.classList.add('hidden'); editorModal.classList.remove('flex'); };
+  $$(`#editorModal [data-close]`).forEach(b=> b.onclick=closeAll);
+
+  $('#e-save').onclick = async ()=>{
+    const baseServ = Math.max(1, Number($('#e-servings').value||2));
+    const pre = {
+      id: prefill.id || uid(),
+      title: $('#e-title').value.trim() || 'Rezept',
+      image: $('#e-image').value.trim(),
+      ingredients: $('#e-ingredients').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      steps: $('#e-steps').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      tags: [], createdAt: prefill.createdAt || Date.now(), notes:'',
+      source: prefill.source || '', baseServings: baseServ, servings: baseServ, slices: prefill.slices || 12
+    };
+    const macros = await fetch('/.netlify/functions/nutrition',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ingredients: pre.ingredients, servings: pre.servings })
+    }).then(r=>r.json()).catch(()=>({}));
+
+    const rec = { ...pre,
+      kcal: macros.kcal ?? null, carbs: macros.carbs ?? null,
+      protein: macros.protein ?? null, fat: macros.fat ?? null
+    };
+
+    rec.tags = autoTags(rec);
+    // beim Instagram-Flow ggf. vorhandenes ersetzen/insert
+    const idx = list.findIndex(x=>x.id===rec.id);
+    if (idx>=0) list[idx]=rec; else list.unshift(rec);
+    await save(list);
+    closeAll(); renderRecipes(); openDetail(rec);
+  };
+}
+function pickImage(){
+  const input = document.createElement('input'); input.type='file'; input.accept='image/*';
+  input.onchange = async e => {
+    const f=e.target.files?.[0]; if(!f) return;
+    const reader=new FileReader(); reader.onload=async ()=>{
+      openEditor({ title:f.name.replace(/\.[^.]+$/,''), image: reader.result, servings:2, baseServings:2 });
+    };
+    reader.readAsDataURL(f);
+  };
+  input.click();
+}
+
+/* ===== Rename ===== */
+function openRename(r){
+  const title = prompt('Neuer Titel', r.title || '');
+  if (title == null) return;
+  r.title = title.trim() || r.title;
+  save(list).then(()=>{ renderRecipes(); openDetail(r); });
+}
+
+/* ===== Detail ===== */
+const detail=$('#detail');
+function listUI(items, factor){
+  if (!items || !items.length) return `<p class="text-sm text-slate-500">Keine Zutaten</p>`;
+  return `<ul class="bullet space-y-2">${items.map((t)=>`<li>${scaleLine(t,factor)}</li>`).join('')}</ul>`;
+}
+function stepsUI(items){
+  if (!items || !items.length) return `<p class="text-sm text-slate-500">Keine Schritte</p>`;
+  return `<ol class="list-decimal list-inside space-y-2">${items.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`;
+}
+
+function showPane(name){
+  for (const n of ['ingredients','instructions','nutrition','notes']){
+    $('#pane-'+n).classList.toggle('hidden', n!==name);
+    $(`.tab[data-pane="${n}"]`).setAttribute('aria-current', n===name ? 'true':'false');
+  }
+}
+$$('.tab').forEach(b=> b.onclick=()=> showPane(b.dataset.pane));
+
+function openDetail(r){
+  if (!r) return;
+  openId = r.id;
+  const base = Math.max(1, Number(r.baseServings||r.servings||1));
+  $('#d-title').textContent = r.title || '';
+  $('#d-image').src = r.image || '';
+  $('#d-time').textContent = r.createdAt ? 'Gespeichert vor ' + ago(r.createdAt) : '';
+
+  $('#servingsNum').textContent = Math.max(1, Number(r.servings||base));
+  const cake = /kuchen|torte|cake|muffin/i.test( (r.title||'') + ' ' + (r.ingredients||[]).join(' ') );
+  $('#slicesBox').classList.toggle('hidden', !cake);
+  $('#slicesNum').textContent = Math.max(1, Number(r.slices||12));
+
+  const host = r.source ? new URL(r.source).hostname.replace('www.','') : '';
+  const s=$('#d-source'); if(host){ s.textContent=host; s.classList.remove('hidden'); } else s.classList.add('hidden');
+
+  const factor = Math.max(1, Number(r.servings||base)) / base;
+  $('#pane-ingredients').innerHTML = listUI(r.ingredients, factor);
+  $('#pane-instructions').innerHTML = stepsUI(r.steps);
+  $('#pane-nutrition').innerHTML = nutritionUI(r);
+  $('#d-notes').value = r.notes || '';
+  showPane('ingredients');
+
+  detail.classList.add('open'); $('#backdrop').classList.add('show');
+
+  $('#servingsMinus').onclick = async ()=>{
+    r.servings=Math.max(1, (r.servings||base)-1);
+    await save(list);
+    $('#servingsNum').textContent=r.servings;
+    const f = r.servings / base;
+    $('#pane-ingredients').innerHTML = listUI(r.ingredients, f);
+    $('#pane-nutrition').innerHTML = nutritionUI(r);
+    renderRecipes();
+  };
+  $('#servingsPlus').onclick = async ()=>{
+    r.servings=Math.max(1, (r.servings||base)+1);
+    await save(list);
+    $('#servingsNum').textContent=r.servings;
+    const f = r.servings / base;
+    $('#pane-ingredients').innerHTML = listUI(r.ingredients, f);
+    $('#pane-nutrition').innerHTML = nutritionUI(r);
+    renderRecipes();
+  };
+  $('#slicesMinus').onclick = async ()=>{ r.slices=Math.max(1,(r.slices||12)-1); await save(list); $('#slicesNum').textContent=r.slices; $('#pane-nutrition').innerHTML = nutritionUI(r); };
+  $('#slicesPlus').onclick  = async ()=>{ r.slices=Math.max(1,(r.slices||12)+1); await save(list); $('#slicesNum').textContent=r.slices; $('#pane-nutrition').innerHTML = nutritionUI(r); };
+}
+$('#d-close').onclick=()=>{ detail.classList.remove('open'); $('#backdrop').classList.remove('show'); };
+
+/* ===== Toolbar ===== */
+$('#gridBtn').onclick=()=>{ gridIsCards=!gridIsCards; $('#gridBtn').setAttribute('aria-pressed', gridIsCards?'true':'false'); renderRecipes(); };
+$('#sortBtn').onclick=()=>{ sortNewest=!sortNewest; $('#sortBtn').textContent = sortNewest ? 'Neueste' : 'Älteste'; renderRecipes(); };
+$('#q').oninput=()=>renderRecipes();
+
+/* ===== Data IO ===== */
+$('#exportData').onclick=async ()=>{
+  const blob = new Blob([JSON.stringify({recipes:list}, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='snackbook-export.json'; a.click(); URL.revokeObjectURL(url);
+};
+$('#importData').onchange=async (e)=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const t=await f.text(); try{
+    const j=JSON.parse(t);
+    if (Array.isArray(j.recipes)) { list=j.recipes; await save(list); }
+    renderRecipes(); alert('Import fertig');
+  }catch(err){ alert('Ungültiges JSON'); }
+};
+$('#resetApp').onclick=async ()=>{ if(!confirm('Alle Rezepte löschen?')) return; list=[]; await save(list); renderRecipes(); };
+
+/* ===== Install Prompt ===== */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; showInstallUI(true); });
+function showInstallUI(show){ $('#installBanner').classList.toggle('hidden', !show); $('#installBtn').classList.toggle('hidden', !show); }
+$('#installLater').onclick=()=> showInstallUI(false);
+$('#installNow').onclick = async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; showInstallUI(false); deferredPrompt=null; };
+$('#installBtn').onclick  = ()=> $('#installNow').click();
+
+/* ===== Boot ===== */
+(async () => { feather.replace(); list = await load(); renderRecipes(); })();
+
+/* ===== Deep Link & SW-Message (Share) ===== */
+(() => {
+  const p = new URLSearchParams(location.search);
+  const u = p.get('url') || p.get('share_url') || '';
+  if (u) {
+    setTimeout(() => {
+      document.getElementById('importUrl').value = u; openImport();
+      try { const clean = new URL(location.href); ['url','share_url','shared'].forEach(k=>clean.searchParams.delete(k)); history.replaceState({}, '', clean.toString()); } catch {}
+    }, 50);
+  }
+})();
+navigator.serviceWorker?.addEventListener('message', (e)=>{
+  if(e.data?.type==='share' && e.data.url){ document.getElementById('importUrl').value = e.data.url; openImport(); }
+});
+</script>
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/service-worker.js');}</script>
+
+
+</body>
+</html>

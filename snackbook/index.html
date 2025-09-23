@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snackbook - Deine Rezept-App</title>
+  <meta name="description" content="Speichere und organisiere deine Rezepte aus dem Web"/>
+
+  <!-- Rein weiß für System/UI -->
+  <meta name="theme-color" content="#FFFFFF">
+  <style>
+    html, body { background:#fff; margin:0; }
+  </style>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json?v=10"/>
+
+  <!-- UI libs -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://unpkg.com/localforage/dist/localforage.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .nutrition-pill { padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; }
+    .tag-badge { padding: .25rem .5rem; border-radius: .5rem; font-size: .75rem; font-weight: 600; background:#f3f4f6; color:#1f2937; }
+    .ingredient-checkbox:checked + .ingredient-label { text-decoration: line-through; color:#9ca3af; }
+    .cooking-step { font-size: 1.125rem; line-height: 1.75rem; margin-bottom: 1rem; }
+
+    /* Loader Overlay (hell/weiß) */
+    #app-loader {
+      backdrop-filter: blur(2px);
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+    #app-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimaler weißer Loader -->
+  <div id="app-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
+    <div class="flex items-center space-x-3">
+      <div class="h-6 w-6 rounded-full border-2 border-gray-300 border-t-gray-900 animate-spin"></div>
+      <span class="text-sm text-gray-600">Snackbook lädt…</span>
+    </div>
+  </div>
+
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm py-4 px-6 flex items-center justify-between sticky top-0 z-10">
+      <h1 class="text-xl font-bold text-gray-800 flex items-center">
+        <i data-feather="book-open" class="mr-2"></i> Snackbook
+      </h1>
+      <div class="flex space-x-4">
+        <button id="add-btn" class="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+          <i data-feather="plus"></i>
+        </button>
+        <button id="settings-btn" class="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+          <i data-feather="settings"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <!-- Search Bar -->
+      <div class="mb-6 relative">
+        <input id="search" type="text" placeholder="Rezepte suchen..."
+          class="w-full p-3 pl-10 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <i data-feather="search" class="absolute left-3 top-3.5 text-gray-400"></i>
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">Alle</button>
+        <button class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium">High-Protein</button>
+        <button class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium">Unter 500 kcal</button>
+        <button class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium">Vegetarisch</button>
+        <button class="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium">Vegan</button>
+      </div>
+
+      <!-- Recipe Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Recipe Card 1 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <img src="https://picsum.photos/seed/food1/640/360" alt="Avocado Toast" class="w-full h-48 object-cover" loading="lazy">
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-2">Cremiger Avocado Toast</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="nutrition-pill bg-green-100 text-green-800">420 kcal</span>
+              <span class="nutrition-pill bg-blue-100 text-blue-800">15 g Protein</span>
+              <span class="nutrition-pill bg-yellow-100 text-yellow-800">35 g KH</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag-badge">Frühstück</span>
+              <span class="tag-badge">Vegetarisch</span>
+              <span class="tag-badge">Schnell</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Card 2 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <img src="https://picsum.photos/seed/food2/640/360" alt="Protein Pancakes" class="w-full h-48 object-cover" loading="lazy">
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-2">Protein Pancakes</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="nutrition-pill bg-green-100 text-green-800">380 kcal</span>
+              <span class="nutrition-pill bg-blue-100 text-blue-800">30 g Protein</span>
+              <span class="nutrition-pill bg-yellow-100 text-yellow-800">25 g KH</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag-badge">Frühstück</span>
+              <span class="tag-badge">High-Protein</span>
+              <span class="tag-badge">Einfach</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Card 3 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <img src="https://picsum.photos/seed/food3/640/360" alt="Buddha Bowl" class="w-full h-48 object-cover" loading="lazy">
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-2">Bunte Buddha Bowl</h3>
+          <div class="flex flex-wrap gap-2 mb-3">
+              <span class="nutrition-pill bg-green-100 text-green-800">450 kcal</span>
+              <span class="nutrition-pill bg-blue-100 text-blue-800">20 g Protein</span>
+              <span class="nutrition-pill bg-yellow-100 text-yellow-800">50 g KH</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag-badge">Mittagessen</span>
+              <span class="tag-badge">Vegan</span>
+              <span class="tag-badge">Gesund</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Recipe Modal -->
+    <div id="add-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Rezept hinzufügen</h2>
+          <button id="close-add-modal" class="text-gray-500 hover:text-gray-700">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <button id="add-from-url" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
+            <i data-feather="link" class="mr-3"></i>
+            <span>Aus URL einfügen</span>
+          </button>
+          <button id="add-from-text" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
+            <i data-feather="clipboard" class="mr-3"></i>
+            <span>Text einfügen</span>
+          </button>
+          <button id="add-from-image" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
+            <i data-feather="image" class="mr-3"></i>
+            <span>Screenshot/Image hochladen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- URL Input Modal -->
+    <div id="url-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">URL einfügen</h2>
+          <button id="close-url-modal" class="text-gray-500 hover:text-gray-700">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <input type="text" id="recipe-url" placeholder="https://instagram.com/p/..."
+            class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <div id="instagram-warning" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 hidden">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i data-feather="alert-triangle" class="h-5 w-5 text-yellow-400"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  Instagram blockiert oft die direkte Extraktion. Falls es nicht klappt, Text einfügen oder Screenshot hochladen.
+                </p>
+              </div>
+            </div>
+          </div>
+          <button id="parse-url" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center">
+            <i data-feather="download" class="mr-2"></i>
+            <span>Rezept extrahieren</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Input Modal -->
+    <div id="text-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Text einfühen</h2>
+          <button id="close-text-modal" class="text-gray-500 hover:text-gray-700">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <textarea id="recipe-text" rows="10" placeholder="Füge hier den Rezepttext ein..."
+            class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+          <button id="parse-text" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center">
+            <i data-feather="edit" class="mr-2"></i>
+            <span>Rezept analysieren</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Input Modal -->
+    <div id="image-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Bild hochladen</h2>
+          <button id="close-image-modal" class="text-gray-500 hover:text-gray-700">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <i data-feather="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+            <p class="mt-2 text-sm text-gray-600">
+              <span class="font-medium text-blue-600">Klicke zum Hochladen</span> oder ziehe das Bild hierher
+            </p>
+            <input type="file" id="recipe-image" class="hidden" accept="image/*">
+          </div>
+          <button id="parse-image" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center">
+            <i data-feather="image" class="mr-2"></i>
+            <span>Bild analysieren</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Init libs
+    document.addEventListener('DOMContentLoaded', () => {
+      AOS.init();
+      feather.replace();
+    });
+
+    // Loader ausblenden, sobald alles geladen ist
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('app-loader');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 300);
+      }
+    });
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+
+    // Import-Brücke für Share-Target und ?import=
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1) Aus share.html via localStorage
+      const raw = localStorage.getItem('snackbook:import');
+      if (raw) {
+        localStorage.removeItem('snackbook:import');
+        try {
+          const { input } = JSON.parse(raw);
+          if (input) {
+            location.href = 'detail.html?import=' + encodeURIComponent(input);
+            return;
+          }
+        } catch(e){}
+      }
+      // 2) Direkt über ?import=
+      const params = new URLSearchParams(location.search);
+      const q = params.get('import');
+      if (q) {
+        location.href = 'detail.html?import=' + encodeURIComponent(q);
+      }
+    });
+
+    // --- UI: Modals ---
+    const $ = sel => document.querySelector(sel);
+    $('#add-btn')?.addEventListener('click', () => $('#add-modal').classList.remove('hidden'));
+    $('#close-add-modal')?.addEventListener('click', () => $('#add-modal').classList.add('hidden'));
+
+    $('#add-from-url')?.addEventListener('click', () => {
+      $('#add-modal').classList.add('hidden');
+      $('#url-modal').classList.remove('hidden');
+      const input = $('#recipe-url');
+      const warn = $('#instagram-warning');
+      input.addEventListener('input', e => {
+        e.target.value.includes('instagram.com') ? warn.classList.remove('hidden') : warn.classList.add('hidden');
+      }, { once: true });
+    });
+    $('#close-url-modal')?.addEventListener('click', () => $('#url-modal').classList.add('hidden'));
+
+    $('#add-from-text')?.addEventListener('click', () => {
+      $('#add-modal').classList.add('hidden');
+      $('#text-modal').classList.remove('hidden');
+    });
+    $('#close-text-modal')?.addEventListener('click', () => $('#text-modal').classList.add('hidden'));
+
+    $('#add-from-image')?.addEventListener('click', () => {
+      $('#add-modal').classList.add('hidden');
+      $('#image-modal').classList.remove('hidden');
+    });
+    $('#close-image-modal')?.addEventListener('click', () => $('#image-modal').classList.add('hidden'));
+  </script>
+</body>
+</html>

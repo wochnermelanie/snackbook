@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<meta charset="utf-8">
+<title>Snackbook Share</title>
+<style>body{font:14px system-ui;padding:24px} .muted{color:#666}</style>
+<body>
+  <h1>Wird gespeichert…</h1>
+  <p class="muted">Falls nichts passiert, <a id="open" href="/">hier öffnen</a>.</p>
+<script>
+;(async () => {
+  const lf = { get:k=>Promise.resolve(JSON.parse(localStorage.getItem(k)||'null')),
+               set:(k,v)=>Promise.resolve(localStorage.setItem(k,JSON.stringify(v))) };
+  const DB='recipes', uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+
+  const p=new URLSearchParams(location.search);
+  const fromQuery = (p.get('title')||p.get('text')||p.get('url')) ? {
+    title:p.get('title')||'', text:p.get('text')||'', url:p.get('url')||'', image:''
+  } : null;
+
+  let input = fromQuery;
+
+  if (input?.url) {
+    try{
+      const r=await fetch('/.netlify/functions/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:input.url})});
+      const data=await r.json();
+      const rec={ id:uid(), title:data.title||input.title||input.url||'Import', image:data.image||'',
+        ingredients:data.ingredients||[], steps:data.steps||[], tags:data.tags||[], source:input.url, createdAt:Date.now(),
+        kcal:data.macros?.kcal??null, protein:data.macros?.protein??null, carbs:data.macros?.carbs??null, fat:data.macros?.fat??null, notes:'' };
+      const list=(await lf.get(DB))||[]; list.unshift(rec); await lf.set(DB,list);
+      location.href='/?open='+encodeURIComponent(rec.id); return;
+    }catch(e){}
+  }
+  // Fallback: nur als Link speichern
+  const rec={ id:uid(), title:input?.title||input?.text||input?.url||'Import', image:'', ingredients:[], steps:[], tags:['Import'], source:input?.url||'', createdAt:Date.now(), notes:'' };
+  const list=(await lf.get(DB))||[]; list.unshift(rec); await lf.set(DB,list);
+  location.href='/?open='+encodeURIComponent(rec.id);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+	"siteId": "b055a86f-3430-40d7-b2db-cf938c61f70a",
+	"geolocation": {
+		"data": {
+			"city": "Mödling",
+			"country": {
+				"code": "AT",
+				"name": "Austria"
+			},
+			"subdivision": {
+				"code": "3",
+				"name": "Lower Austria"
+			},
+			"timezone": "Europe/Vienna",
+			"latitude": 48.0901,
+			"longitude": 16.292,
+			"postalCode": "2340"
+		},
+		"timestamp": 1758518995568
+	}
+}

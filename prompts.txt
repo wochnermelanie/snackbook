@@ -1,0 +1,45 @@
+Baue mir eine responsive Rezept-App als PWA namens "Snackbook".
+
+Ziele:
+1) Eingehende URLs aus der Android Share-Funktion annehmen und speichern.
+2) Aus einer URL oder eingefügtem Text den Rezeptinhalt extrahieren:
+   - Titel, Autor falls vorhanden
+   - Zutaten als Liste mit Mengen
+   - Zubereitungsschritte nummeriert
+   - Portionenanzahl
+   - geschätzte Nährwerte pro Portion: kcal, Protein, Kohlenhydrate, Fett
+   - Hauptbild
+   - Tags: Küche, Kategorie, Aufwand, Zeit
+
+Wichtige Hinweise:
+- Instagram: Wenn die URL nicht direkt auslesbar ist, nimm den sichtbaren Text, Untertitel, Transkription, erkannte Overlays im Video und Kommentare, falls vorhanden. Fallback: Nutzerin kann Screenshot oder Text einfügen. Zeig eine klare Hinweisbox, wenn aufgrund der Plattformbeschränkungen keine direkte Extraktion möglich ist, und biete "Text einfügen" und "Screenshot hochladen" an.
+- Nährwertschätzung: Mappe Zutaten über eine einfache Nutrient-DB (z. B. USDA-ähnliche Durchschnittswerte) und rechne per Regelwerk. Verteile auf Portionen. Zeig Klartext-Disclaimer "Schätzung".
+- Alle Daten lokal erst in IndexedDB speichern. Sync-Option später.
+- Export: 1) PDF Rezeptkarte, 2) JSON, 3) Teilen als Bild mit Titel, Zutaten, QR zur Rezeptseite.
+- Suche und Filter: Volltext, Tags, High-Protein, unter 500 kcal, vegetarisch, vegan.
+- Offline-fähig: Service Worker, App-Icon, Install-Banner. Web Share Target aktivieren für Android.
+- Design: hell, clean, große Karten, Bild oben, darunter Nährwerte-Pills, große Zutaten-Checkboxen, Cooking-Mode mit großem Schritt-Text und Keep-Awake.
+- Barrierefreiheit: ausreichender Kontrast, Tastaturbedienung, ARIA Labels.
+
+Screens und Komponenten:
+- Home: Suchfeld oben. Darunter Grid aus Rezeptkarten: Bild, Titel, 3 Nährwert-Pills, Tag-Badges.
+- Add: Buttons "Aus URL einfügen", "Text einfügen", "Screenshot/Image hochladen". Fortschrittsanzeige beim Parsen.
+- Detail: Hero-Bild, Titel, Tags, Portionen-Stepper, Nährwerte-Kacheln (kcal, P, KH, F), Zutatenliste mit Checkboxen, Schritte nummeriert, Cooking-Mode Button. Unten Export-Buttons.
+- Settings: Backup/Restore, Einheiten metrisch, Standard-Portionen.
+
+Technik:
+- Frontend: React + TypeScript, Vite. UI Komponenten clean. Keine Serverpflicht, alles client-first.
+- Persistenz: IndexedDB via localforage.
+- PWA: manifest.json, service worker, Web Share Target für action "/share".
+- Parser: Modular. 1) URL-Fetcher mit oEmbed/OpenGraph Fallback, 2) Text-Cleaner, 3) LLM-Prompter für Strukturierung zu Schema, 4) Nährwert-Estimator mit Zutaten-Mapping und einfachen Heuristiken.
+- Schema: JSON Schema "Recipe" mit Feldern id, title, servings, ingredients[{qty, unit, item}], steps[string], nutrition{calories, protein_g, carbs_g, fat_g}, tags[string[]], images[string[]], source{url, author, platform}.
+- Cooking-Mode: großer Text, Timer pro Schritt optional, Bildschirm an.
+
+Lieferumfang hier im Space:
+- Komplettes Repo mit src/ Komponenten: Home, Add, Detail, CookingMode, Settings.
+- Beispiel-Parser für Instagram-Caption/Screenshot als MVP.
+- Testdaten mit 3 Rezepten.
+- Schöne leise Animationen, keine Spielereien.
+
+Zeig nach dem Build eine kurze Onboarding-Tour: 3 Slides, wie man aus Instagram teilt.
+Fehlerfälle klar anzeigen. Alles auf Deutsch.

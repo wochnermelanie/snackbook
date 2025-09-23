@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "sources": ["../../../../snackbook/netlify/functions/ping.mjs"],
+  "sourceRoot": "C:/Users/admin/AppData/Local/Temp/tmp-18408-5El0zuqseYLD",
+  "sourcesContent": ["\uFEFFexport async function handler() {\n  return { statusCode:200, body: JSON.stringify({ ok:true, now:Date.now() }) };\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAC,eAAsB,UAAU;AAC/B,SAAO,EAAE,YAAW,KAAK,MAAM,KAAK,UAAU,EAAE,IAAG,MAAM,KAAI,KAAK,IAAI,EAAE,CAAC,EAAE;AAC7E;",
+  "names": []
+}

@@ -1,0 +1,15 @@
+{
+  "name": "snackbook",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:css": "npx tailwindcss -i ./tailwind.src.css -o ./tailwind.build.css --watch",
+    "build:css": "npx tailwindcss -i ./tailwind.src.css -o ./tailwind.build.css --minify",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"
+  }
+}

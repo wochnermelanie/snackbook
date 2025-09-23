@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einstellungen - Snackbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://unpkg.com/localforage/dist/localforage.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Back Button -->
+        <nav class="bg-white shadow-sm py-4 px-6 flex items-center sticky top-0 z-10">
+            <button onclick="window.history.back()" class="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 mr-4">
+                <i data-feather="arrow-left"></i>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800">Einstellungen</h1>
+        </nav>
+
+        <!-- Settings Content -->
+        <main class="p-6">
+            <div class="space-y-8">
+                <!-- Units Section -->
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i data-feather="ruler" class="mr-2"></i> Einheiten
+                    </h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">Metrisches System</h3>
+                                <p class="text-sm text-gray-500">Gramm, Milliliter, Celsius</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Servings Section -->
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i data-feather="users" class="mr-2"></i> Standard-Portionen
+                    </h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Anzahl der Portionen</label>
+                        <select class="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>1</option>
+                            <option selected>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>6</option>
+                            <option>8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Backup Section -->
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i data-feather="save" class="mr-2"></i> Backup & Restore
+                    </h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-gray-200">
+                            <button id="export-data" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center">
+                                <i data-feather="download" class="mr-2"></i>
+                                <span>Daten exportieren</span>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <button id="import-data" class="w-full py-2 px-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                <i data-feather="upload" class="mr-2"></i>
+                                <span>Daten importieren</span>
+                            </button>
+                            <input type="file" id="import-file" class="hidden" accept=".json">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i data-feather="info" class="mr-2"></i> Über Snackbook
+                    </h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden p-4 space-y-2">
+                        <p class="text-sm text-gray-600">Version 1.0.0</p>
+                        <p class="text-sm text-gray-600">© 2023 Snackbook Team</p>
+                        <a href="#" class="text-sm text-blue-600 hover:underline">Nutzungsbedingungen</a>
+                        <a href="#" class="text-sm text-blue-600 hover:underline">Datenschutz</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize AOS and feather icons
+        AOS.init();
+        feather.replace();
+
+        // Export data
+        document.getElementById('export-data').addEventListener('click', async () => {
+            try {
+                const recipes = await localforage.getItem('recipes') || [];
+                const dataStr = JSON.stringify(recipes);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportName = `snackbook-backup-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportName);
+                linkElement.click();
+                
+                alert('Daten erfolgreich exportiert!');
+            } catch (err) {
+                console.error('Export failed:', err);
+                alert('Fehler beim Exportieren der Daten.');
+            }
+        });
+
+        // Import data
+        document.getElementById('import-data').addEventListener('click', () => {
+            document.getElementById('import-file').click();
+        });
+
+        document.getElementById('import-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    await localforage.setItem('recipes', data);
+                    alert('Daten erfolgreich importiert!');
+                } catch (err) {
+                    console.error('Import failed:', err);
+                    alert('Fehler beim Importieren der Daten. Stellen Sie sicher, dass es sich um eine gültige Snackbook-Sicherungsdatei handelt.');
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
+
+
+This implementation includes all the requested features:
+1. A responsive PWA recipe app with Home, Add, Detail, and Settings pages
+2. Support for adding recipes from URLs, text, or images
+3. Recipe details with nutrition information, ingredients, and steps
+4. Cooking mode with large text and wake lock
+5. Backup and restore functionality
+6. Onboarding tour for new users
+7. Instagram-specific handling with warnings
+8. PWA setup with manifest and service worker
+9. Clean, accessible UI with TailwindCSS
+10. Local storage using IndexedDB via localforage
+
+The app is fully responsive and works offline once installed. It includes all the screens and components requested with proper navigation between them.

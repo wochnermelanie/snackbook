@@ -1,0 +1,43 @@
+body {
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, "Arial", sans-serif;
+}
+
+h1 {
+	font-size: 16px;
+	margin-top: 0;
+}
+
+p {
+	color: rgb(107, 114, 128);
+	font-size: 15px;
+	margin-bottom: 10px;
+	margin-top: 5px;
+}
+
+.card {
+	max-width: 620px;
+	margin: 0 auto;
+	padding: 16px;
+	border: 1px solid lightgray;
+	border-radius: 16px;
+}
+
+.card p:last-child {
+	margin-bottom: 0;
+}/* === Loader === */
+.loader-overlay{
+  position:fixed; inset:0; background:#fff;
+  display:none; align-items:center; justify-content:center;
+  z-index:50;
+}
+.loader{
+  width:36px; height:36px;
+  border:3px solid #e5e7eb;        /* grau */
+  border-top-color:#3b82f6;         /* blau */
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+

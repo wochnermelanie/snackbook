@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezeptdetails - Snackbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://unpkg.com/localforage/dist/localforage.min.js"></script>
+    <style>
+        .nutrition-value {
+            @apply text-2xl font-bold;
+        }
+        .nutrition-label {
+            @apply text-sm text-gray-500;
+        }
+        .serving-stepper {
+            @apply flex items-center border border-gray-200 rounded-lg overflow-hidden;
+        }
+        .serving-btn {
+            @apply px-3 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200;
+        }
+        .serving-value {
+            @apply px-4 py-1 text-center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Back Button -->
+        <nav class="bg-white shadow-sm py-4 px-6 flex items-center sticky top-0 z-10">
+            <button onclick="window.history.back()" class="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 mr-4">
+                <i data-feather="arrow-left"></i>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800">Rezeptdetails</h1>
+        </nav>
+
+        <!-- Recipe Content -->
+        <main>
+            <!-- Hero Image -->
+            <div class="h-64 w-full bg-gray-200 overflow-hidden">
+                <img src="http://static.photos/food/640x360/1" alt="Avocado Toast" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Recipe Header -->
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-2xl font-bold">Cremiger Avocado Toast</h2>
+                    <button class="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+                        <i data-feather="heart"></i>
+                    </button>
+                </div>
+
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <span class="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">Frühstück</span>
+                    <span class="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">Vegetarisch</span>
+                    <span class="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">Schnell</span>
+                    <span class="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">15 Min</span>
+                </div>
+
+                <!-- Servings -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Portionen</label>
+                    <div class="serving-stepper w-32">
+                        <button class="serving-btn" id="decrease-serving">-</button>
+                        <span class="serving-value" id="serving-value">2</span>
+                        <button class="serving-btn" id="increase-serving">+</button>
+                    </div>
+                </div>
+
+                <!-- Nutrition Info -->
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                        <div class="nutrition-value text-green-600">420</div>
+                        <div class="nutrition-label">kcal</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                        <div class="nutrition-value text-blue-600">15g</div>
+                        <div class="nutrition-label">Protein</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                        <div class="nutrition-value text-yellow-600">35g</div>
+                        <div class="nutrition-label">KH</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                        <div class="nutrition-value text-red-600">20g</div>
+                        <div class="nutrition-label">Fett</div>
+                    </div>
+                </div>
+
+                <!-- Ingredients -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i data-feather="list" class="mr-2"></i> Zutaten
+                    </h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <input type="checkbox" id="ingredient-1" class="ingredient-checkbox mt-1 mr-3">
+                            <label for="ingredient-1" class="ingredient-label flex-1">1 reife Avocado</label>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" id="ingredient-2" class="ingredient-checkbox mt-1 mr-3">
+                            <label for="ingredient-2" class="ingredient-label flex-1">2 Scheiben Vollkornbrot</label>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" id="ingredient-3" class="ingredient-checkbox mt-1 mr-3">
+                            <label for="ingredient-3" class="ingredient-label flex-1">1 EL Zitronensaft</label>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" id="ingredient-4" class="ingredient-checkbox mt-1 mr-3">
+                            <label for="ingredient-4" class="ingredient-label flex-1">Salz & Pfeffer nach Geschmack</label>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" id="ingredient-5" class="ingredient-checkbox mt-1 mr-3">
+                            <label for="ingredient-5" class="ingredient-label flex-1">1 TL Chiliflocken (optional)</label>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Steps -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i data-feather="align-left" class="mr-2"></i> Zubereitung
+                    </h3>
+                    <ol class="space-y-4">
+                        <li class="cooking-step">
+                            <span class="font-bold">1.</span> Das Brot toasten, bis es goldbraun und knusprig ist.
+                        </li>
+                        <li class="cooking-step">
+                            <span class="font-bold">2.</span> Die Avocado halbieren, den Kern entfernen und das Fruchtfleisch mit einem Löffel herausheben.
+                        </li>
+                        <li class="cooking-step">
+                            <span class="font-bold">3.</span> Die Avocado in einer Schüssel mit einer Gabel zerdrücken und mit Zitronensaft, Salz und Pfeffer würzen.
+                        </li>
+                        <li class="cooking-step">
+                            <span class="font-bold">4.</span> Die Avocadocreme gleichmäßig auf den Toasts verteilen und nach Belieben mit Chiliflocken bestreuen.
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Cooking Mode Button -->
+                <button id="cooking-mode-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center mb-8">
+                    <i data-feather="play" class="mr-2"></i>
+                    <span>Cooking Mode starten</span>
+                </button>
+
+                <!-- Export Options -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Rezept teilen</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="p-3 border border-gray-200 rounded-lg flex flex-col items-center justify-center hover:bg-gray-50">
+                            <i data-feather="file-text" class="text-blue-500 mb-2"></i>
+                            <span class="text-sm">PDF</span>
+                        </button>
+                        <button class="p-3 border border-gray-200 rounded-lg flex flex-col items-center justify-center hover:bg-gray-50">
+                            <i data-feather="share-2" class="text-blue-500 mb-2"></i>
+                            <span class="text-sm">Teilen</span>
+                        </button>
+                        <button class="p-3 border border-gray-200 rounded-lg flex flex-col items-center justify-center hover:bg-gray-50">
+                            <i data-feather="image" class="text-blue-500 mb-2"></i>
+                            <span class="text-sm">Bild</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Cooking Mode Modal -->
+    <div id="cooking-mode" class="fixed inset-0 bg-white z-50 hidden flex flex-col">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-xl font-bold">Cooking Mode</h2>
+            <button id="exit-cooking-mode" class="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold mb-2">Schritt 1 von 4</h3>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 25%"></div>
+                </div>
+            </div>
+            <div class="text-3xl leading-relaxed mb-8">
+                Das Brot toasten, bis es goldbraun und knusprig ist.
+            </div>
+            <div class="flex justify-center space-x-4">
+                <button class="p-4 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    <i data-feather="skip-back"></i>
+                </button>
+                <button class="p-4 rounded-full bg-blue-600 text-white hover:bg-blue-700">
+                    <i data-feather="pause"></i>
+                </button>
+                <button class="p-4 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    <i data-feather="skip-forward"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize AOS and feather icons
+        AOS.init();
+        feather.replace();
+
+        // Servings stepper
+        let servings = 2;
+        const servingValue = document.getElementById('serving-value');
+        
+        document.getElementById('increase-serving').addEventListener('click', () => {
+            servings++;
+            servingValue.textContent = servings;
+            updateNutritionValues();
+        });
+        
+        document.getElementById('decrease-serving').addEventListener('click', () => {
+            if (servings > 1) {
+                servings--;
+                servingValue.textContent = servings;
+                updateNutritionValues();
+            }
+        });
+
+        function updateNutritionValues() {
+            const baseValues = {
+                kcal: 420,
+                protein: 15,
+                carbs: 35,
+                fat: 20
+            };
+            
+            document.querySelector('.nutrition-value.text-green-600').textContent = 
+                Math.round(baseValues.kcal * servings / 2);
+            document.querySelector('.nutrition-value.text-blue-600').textContent = 
+                Math.round(baseValues.protein * servings / 2) + 'g';
+            document.querySelector('.nutrition-value.text-yellow-600').textContent = 
+                Math.round(baseValues.carbs * servings / 2) + 'g';
+            document.querySelector('.nutrition-value.text-red-600').textContent = 
+                Math.round(baseValues.fat * servings / 2) + 'g';
+        }
+
+        // Cooking mode toggle
+        document.getElementById('cooking-mode-btn').addEventListener('click', () => {
+            document.getElementById('cooking-mode').classList.remove('hidden');
+            document.documentElement.style.overflow = 'hidden';
+        });
+
+        document.getElementById('exit-cooking-mode').addEventListener('click', () => {
+            document.getElementById('cooking-mode').classList.add('hidden');
+            document.documentElement.style.overflow = '';
+        });
+
+        // Wake lock for cooking mode (if supported)
+        let wakeLock = null;
+        
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock is active');
+                    
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock was released');
+                    });
+                }
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        }
+        
+        if ('wakeLock' in navigator) {
+            document.getElementById('cooking-mode-btn').addEventListener('click', requestWakeLock);
+            document.getElementById('exit-cooking-mode').addEventListener('click', () => {
+                if (wakeLock !== null) {
+                    wakeLock.release();
+                    wakeLock = null;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
