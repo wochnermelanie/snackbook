@@ -22,7 +22,7 @@ plugins {
 
 def twaManifest = [
     applicationId: 'com.snackbook.app',
-    hostName: 'storied-brigadeiros-0ce3cf.netlify.app', // The domain being opened in the TWA.
+    hostName: 'snackbook.org', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
     name: 'Snackbook', // The application name.
     launcherName: 'Snackbook', // The name shown on the Android Launcher.
@@ -57,8 +57,8 @@ android {
         applicationId "com.snackbook.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 14
-        versionName "14"
+        versionCode 16
+        versionName "16"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -76,17 +76,17 @@ android {
             // The URL the Web Manifest for the Progressive Web App that the TWA points to. This
             // is used by Chrome OS and Meta Quest to open the Web version of the PWA instead of
             // the TWA, as it will probably give a better user experience for non-mobile devices.
-            resValue "string", "webManifestUrl", 'https://storied-brigadeiros-0ce3cf.netlify.app/manifest.json'
+            resValue "string", "webManifestUrl", 'https://snackbook.org/manifest.json'
         
 
         
             // This is used by Meta Quest.
-            resValue "string", "fullScopeUrl", 'https://storied-brigadeiros-0ce3cf.netlify.app/'
+            resValue "string", "fullScopeUrl", 'https://snackbook.org/'
         
 
         
             // The data for the app to support web share target.
-            resValue "string", "shareTarget", '{\\"action\\":\\"https://storied-brigadeiros-0ce3cf.netlify.app/share\\",\\"method\\":\\"POST\\",\\"enctype\\":\\"multipart/form-data\\",\\"params\\":{\\"title\\":\\"title\\",\\"text\\":\\"text\\",\\"url\\":\\"url\\",\\"files\\":[{\\"name\\":\\"files\\",\\"accept\\":[\\"image/*\\"]}]}}'
+            resValue "string", "shareTarget", '{\\"action\\":\\"/share\\",\\"method\\":\\"POST\\",\\"enctype\\":\\"multipart/form-data\\",\\"params\\":{\\"title\\":\\"title\\",\\"text\\":\\"text\\",\\"url\\":\\"url\\",\\"files\\":[{\\"name\\":\\"files\\",\\"accept\\":[\\"image/*\\"]}]}}'
         
 
         // The hostname is used when building the intent-filter, so the TWA is able to
