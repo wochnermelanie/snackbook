@@ -11,6 +11,21 @@ export async function handler(event) {
       : (event.queryStringParameters?.url || "");
 
     if (!raw) return j(400, { error: "Bitte ?url=… angeben." });
+	
+	// falls in netlify/functions/extract.mjs
+const isInsta = (u) => /(^|\.)instagram\.com$/i.test(new URL(u).hostname);
+
+if (isInsta(input.url)) {
+  const r = await fetch(
+    `${process.env.URL || ''}/.netlify/functions/insta?url=${encodeURIComponent(input.url)}`
+  );
+  return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: await r.text()
+  };
+}
+
 
     const url = decodeURIComponent(raw);
 
