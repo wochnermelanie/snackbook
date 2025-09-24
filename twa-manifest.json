@@ -1,56 +1,70 @@
-{
-  "packageId": "com.snackbook.app",
-  "host": "snackbook.org",
-  "name": "Snackbook",
-  "launcherName": "Snackbook",
-  "display": "standalone",
-  "themeColor": "#FFFFFF",
-  "themeColorDark": "#FFFFFF",
-  "navigationColor": "#FFFFFF",
-  "navigationColorDark": "#FFFFFF",
-  "navigationDividerColor": "#FFFFFF",
-  "navigationDividerColorDark": "#FFFFFF",
-  "backgroundColor": "#FFFFFF",
-  "enableNotifications": true,
-  "startUrl": "/",
-  "iconUrl": "https://snackbook.org/app-icon-512.png",
-  "maskableIconUrl": "https://snackbook.org/app-icon-maskable-512.png",
-  "splashScreenFadeOutDuration": 0,
-  "signingKey": {
-    "path": "C:\\Users\\admin\\snackbook\\android.keystore",
-    "alias": "(upload)"
-  },
-  "appVersionName": "21",
-  "appVersionCode": 21,
-  "shortcuts": [],
-  "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://snackbook.org/manifest.json",
-  "fallbackType": "customtabs",
-  "features": {},
-  "alphaDependencies": {
-    "enabled": false
-  },
-  "enableSiteSettingsShortcut": true,
-  "isChromeOSOnly": false,
-  "isMetaQuest": false,
-  "fullScopeUrl": "https://snackbook.org/",
-  "minSdkVersion": 21,
-  "shareTarget": {
-    "action": "https://snackbook.org/share",
-    "method": "GET",
-    "enctype": "application/x-www-form-urlencoded",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
-  "orientation": "portrait",
-  "fingerprints": [],
-  "additionalTrustedOrigins": [],
-  "retainedBundles": [],
-  "protocolHandlers": [],
-  "fileHandlers": [],
-  "launchHandlerClientMode": "",
-  "appVersion": "21"
+﻿{
+    "packageId":  "com.snackbook.app",
+    "host":  "snackbook.org",
+    "name":  "Snackbook",
+    "launcherName":  "Snackbook",
+    "display":  "standalone",
+    "themeColor":  "#acf0c6",
+    "themeColorDark":  "#acf0c6",
+    "navigationColor":  "#acf0c6",
+    "navigationColorDark":  "#acf0c6",
+    "navigationDividerColor":  "#acf0c6",
+    "navigationDividerColorDark":  "#acf0c6",
+    "backgroundColor":  "#acf0c6",
+    "enableNotifications":  true,
+    "startUrl":  "/",
+    "iconUrl":  "https://snackbook.org/app-icon-512.png",
+    "maskableIconUrl":  "https://snackbook.org/app-icon-maskable-512.png",
+    "splashScreenFadeOutDuration":  0,
+    "signingKey":  {
+                       "path":  "C:\\Users\\admin\\snackbook\\android.keystore",
+                       "alias":  "(upload)"
+                   },
+    "appVersionName":  "21",
+    "appVersionCode":  21,
+    "shortcuts":  [
+
+                  ],
+    "generatorApp":  "bubblewrap-cli",
+    "webManifestUrl":  "https://snackbook.org/manifest.json",
+    "fallbackType":  "customtabs",
+    "features":  {
+
+                 },
+    "alphaDependencies":  {
+                              "enabled":  false
+                          },
+    "enableSiteSettingsShortcut":  true,
+    "isChromeOSOnly":  false,
+    "isMetaQuest":  false,
+    "fullScopeUrl":  "https://snackbook.org/",
+    "minSdkVersion":  21,
+    "shareTarget":  {
+                        "action":  "https://snackbook.org/share",
+                        "method":  "GET",
+                        "enctype":  "application/x-www-form-urlencoded",
+                        "params":  {
+                                       "title":  "title",
+                                       "text":  "text",
+                                       "url":  "url"
+                                   }
+                    },
+    "orientation":  "portrait",
+    "fingerprints":  [
+
+                     ],
+    "additionalTrustedOrigins":  [
+
+                                 ],
+    "retainedBundles":  [
+
+                        ],
+    "protocolHandlers":  [
+
+                         ],
+    "fileHandlers":  [
+
+                     ],
+    "launchHandlerClientMode":  "",
+    "appVersion":  "21"
 }

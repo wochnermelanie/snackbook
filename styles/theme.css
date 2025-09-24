@@ -1,0 +1,38 @@
+﻿:root{
+  --sb-primary: #acf0c6;
+  --sb-primary-contrast: #0f172a;
+  --sb-muted: #f1f5f9;
+  --sb-text: #0f172a;
+  --sb-subtext: #475569;
+  --sb-border: #e2e8f0;
+}
+
+/* Buttons / CTAs */
+.sb-btn {
+  background: var(--sb-primary);
+  color: var(--sb-primary-contrast);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+
+/* Rezeptkarte Makro-Pills */
+.sb-macros {
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.sb-pill {
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border:1px solid var(--sb-border);
+}
+.sb-pill--kcal { background: var(--sb-primary); color: var(--sb-primary-contrast); border: none; }
+
+/* Fortschritt (Kochmodus) */
+.sb-progress {
+  height:8px; background: var(--sb-muted); border-radius:999px; overflow:hidden;
+}
+.sb-progress > div { height:100%; width:0; background: var(--sb-primary); }
