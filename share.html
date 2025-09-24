@@ -6,38 +6,81 @@
 <h1>Wird gespeichert…</h1>
 <p class="muted">Falls nichts passiert, <a id="open" href="/">hier öffnen</a>.</p>
 <script>
-(async () => {
-  const lf={get:k=>Promise.resolve(JSON.parse(localStorage.getItem(k)||'null')),set:(k,v)=>Promise.resolve(localStorage.setItem(k,JSON.stringify(v)))};
-  const DB='recipes', uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
-  const save=async (payload)=>{
-    let {title='',text='',url='',image=''}=payload||{};
-    if(url){
-      try{
-        const r=await fetch('/.netlify/functions/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
-        const d=await r.json();
-        const rec={id:uid(),title:d.title||title||url||'Import',image:d.image||image||'',ingredients:d.ingredients||[],steps:d.steps||[],tags:d.tags||[],source:url,createdAt:Date.now(),kcal:d.macros?.kcal??null,protein:d.macros?.protein??null,carbs:d.macros?.carbs??null,fat:d.macros?.fat??null,notes:''};
-        const list=(await lf.get(DB))||[];list.unshift(rec);await lf.set(DB,list);location.href='/?open='+encodeURIComponent(rec.id);return;
-      }catch(e){}
-    }
-    const rec={id:uid(),title:title||text||url||'Import',image:'',ingredients:[],steps:[],tags:['Import'],source:url||'',createdAt:Date.now(),notes:text||''};
-    const list=(await lf.get(DB))||[];list.unshift(rec);await lf.set(DB,list);location.href='/?open='+encodeURIComponent(rec.id);
+;(async () => {
+  // tiny localForage-like helpers
+  const lf = {
+    get:k=>Promise.resolve(JSON.parse(localStorage.getItem(k)||'null')),
+    set:(k,v)=>Promise.resolve(localStorage.setItem(k,JSON.stringify(v)))
   };
+  const DB='recipes', uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
 
-  // 1) POST Share Target (installed PWA)
-  if('launchQueue'in window && 'LaunchParams'in window){
-    launchQueue.setConsumer(async params=>{
-      const data={title:params?.title||'',text:params?.text||'',url:params?.url||''};
-      if(params?.files?.length){
-        try{const f=await params.files[0].getFile();data.image=URL.createObjectURL(f);}catch{}
-      }
-      await save(data);
-    });
+  const p = new URLSearchParams(location.search);
+
+  // 1) Rohwerte aus GET
+  let title = p.get('title') || '';
+  let text  = p.get('text')  || '';
+  let url   = p.get('url')   || '';
+
+  // 2) Falls IG nur 'text' schickt, extrahiere die 1. URL daraus
+  if (!url && text) {
+    const m = text.match(/https?:\/\/[^\s)]+/i);
+    if (m) url = m[0];
   }
 
-  // 2) Fallback: GET-Query (web share / desktop)
-  const q=new URLSearchParams(location.search);
-  const hasQ=[...q.keys()].some(k=>['title','text','url'].includes(k));
-  if(hasQ){await save({title:q.get('title')||'',text:q.get('text')||'',url:q.get('url')||''});}
+  // 3) Als Fallback: nichts gekommen → zurück
+  if (!title && !text && !url) {
+    location.href = '/'; return;
+  }
+
+  // 4) Versuch: Server-Extractor (holt OG-Daten/Kaption)
+  let rec = null;
+  if (url) {
+    try {
+      const r = await fetch('/.netlify/functions/extract?url=' + encodeURIComponent(url), {
+        headers:{'Accept':'application/json'}
+      });
+      const data = await r.json();
+      // Minimaler Record mit sinnvollen Defaults
+      rec = {
+        id: uid(),
+        title: (data.title || title || text || url || 'Import').trim(),
+        image: data.image || '',
+        ingredients: data.ingredients || [],
+        steps: data.steps || [],
+        tags: (data.tags && data.tags.length ? data.tags : ['Import']),
+        source: url,
+        createdAt: Date.now(),
+        kcal: data.macros?.kcal ?? null,
+        protein: data.macros?.protein ?? null,
+        carbs: data.macros?.carbs ?? null,
+        fat: data.macros?.fat ?? null,
+        notes: data.caption || data.notes || ''
+      };
+    } catch(e) {
+      // fällt unten auf Link-only zurück
+    }
+  }
+
+  // 5) Fallback: nur Link/Title speichern
+  if (!rec) {
+    rec = {
+      id: uid(),
+      title: (title || text || url || 'Import').trim(),
+      image: '',
+      ingredients: [],
+      steps: [],
+      tags: ['Import'],
+      source: url || '',
+      createdAt: Date.now(),
+      notes: ''
+    };
+  }
+
+  // 6) Speichern & öffnen
+  const list = (await lf.get(DB)) || [];
+  list.unshift(rec);
+  await lf.set(DB, list);
+  location.href = '/?open='+encodeURIComponent(rec.id);
 })();
 </script>
 </body></html>

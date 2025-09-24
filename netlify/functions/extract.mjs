@@ -1,186 +1,110 @@
-// netlify/functions/extract.mjs
-// Minimaler, robuster HTML-Extractor für Instagram & Co.
+import cheerio from 'cheerio';
 
-const UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36';
 
 export async function handler(event) {
   try {
-    const raw = event.httpMethod === "POST"
-      ? (JSON.parse(event.body || "{}").url || "")
-      : (event.queryStringParameters?.url || "");
+    const url = (event.queryStringParameters?.url || '').trim();
+    if (!url) return json(400, { error: 'Bitte URL angeben ?url=' });
 
-    if (!raw) return j(400, { error: "Bitte ?url=… angeben." });
-	
-	// falls in netlify/functions/extract.mjs
-const isInsta = (u) => /(^|\.)instagram\.com$/i.test(new URL(u).hostname);
+    // Nur http(s)
+    if (!/^https?:\/\//i.test(url)) return json(400, { error: 'Ungültige URL' });
 
-if (isInsta(input.url)) {
-  const r = await fetch(
-    `${process.env.URL || ''}/.netlify/functions/insta?url=${encodeURIComponent(input.url)}`
-  );
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: await r.text()
-  };
-}
-
-
-    const url = decodeURIComponent(raw);
-
-    // Seite abrufen (Server-Side; CORS egal)
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": UA,
-        "Accept-Language": "de,en;q=0.9",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-    });
-    if (!res.ok) {
-      return j(502, { error: `Fetch fehlgeschlagen (${res.status})` });
+    // Instagram / Threads / Facebook Reels erlauben
+    const host = new URL(url).hostname.replace(/^www\./,'');
+    const allowed = ['instagram.com','www.instagram.com','m.instagram.com'];
+    if (!allowed.includes(host)) {
+      // Für andere Seiten kannst du später allgemeines Scraping ergänzen
+      return json(200, baseRecord({ url, title: '', image: '', caption: '' }));
     }
+
+    // Seite abrufen (Server-zu-Server, keine CORS-Probleme)
+    const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'de,en;q=0.9' } });
     const html = await res.text();
+    const $ = cheerio.load(html);
 
-    // 1) ld+json suchen & sicher parsen
-    const ld = pickLdJson(html);
+    // 1) OG-Daten
+    const ogTitle = $('meta[property="og:title"]').attr('content') || '';
+    const ogImage = $('meta[property="og:image"]').attr('content') || '';
+    const ogDesc  = $('meta[property="og:description"]').attr('content') || '';
 
-    // 2) OpenGraph/Fallback
-    const og = {
-      title: meta(html, "og:title") || textBetween(html, "<title>", "</title>"),
-      image: meta(html, "og:image") || meta(html, "twitter:image"),
-      description: meta(html, "og:description") || meta(html, "description"),
-    };
+    // 2) JSON-LD, falls vorhanden
+    let ldTitle = '', ldImage = '', ldDesc = '';
+    $('script[type="application/ld+json"]').each((_, el) => {
+      try {
+        const data = JSON.parse($(el).text());
+        if (data && typeof data === 'object') {
+          ldTitle = data.headline || data.name || ldTitle;
+          ldImage = (typeof data.image === 'string' ? data.image : (Array.isArray(data.image) ? data.image[0] : '')) || ldImage;
+          ldDesc  = data.caption || data.description || ldDesc;
+        }
+      } catch {}
+    });
 
-    // Instagram: Einfaches Heuristik-Mapping
-    const title =
-      ld?.headline ||
-      ld?.name ||
-      clean(og.title) ||
-      "Instagram-Import";
-    const image = firstString(ld?.image) || og.image || "";
-    const text =
-      ld?.description || og.description || "";
+    // 3) Caption heuristisch (OG oder JSON-LD oder Fallback auf Seitentext)
+    const caption = (ldDesc || ogDesc || '').trim();
 
-    // Minimales Rezeptobjekt – Zutaten/Schritte versuchen wir heuristisch
-    const ingredients = guessIngredients(text);
-    const steps = guessSteps(text);
+    // 4) Titel priorisieren
+    const title = (ldTitle || ogTitle || 'Instagram').replace(/\s*\|\s*Instagram\s*$/i,'').trim();
 
-    const out = {
+    // 5) Zutaten/Schritte heuristisch aus Caption (grob; kann man später schärfen)
+    const { ingredients, steps, tags } = captionToRecipe(caption);
+
+    return json(200, {
       title,
-      image,
+      image: ldImage || ogImage || '',
+      caption,
       ingredients,
       steps,
-      tags: ["Import"],
+      tags: tags.length ? tags : ['Instagram','Import'],
       source: url,
-      macros: null,
-    };
-
-    return j(200, out);
-  } catch (err) {
-    // Niemals „Unexpected end of JSON input“ durchreichen – sauber antworten
-    return j(500, { error: "Extraktion fehlgeschlagen", detail: String(err?.message || err) });
+      macros: null
+    });
+  } catch (e) {
+    return json(500, { error: e.message || 'Extractor Fehler' });
   }
 }
 
-// ---------- Hilfsfunktionen ----------
-
-function j(statusCode, body) {
-  return {
-    statusCode,
-    headers: { "content-type": "application/json; charset=utf-8" },
-    body: JSON.stringify(body),
-  };
+// ——— helpers ———
+function json(status, body) {
+  return { statusCode: status, headers: { 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify(body) };
 }
 
-// zieht <meta property="og:*" content="...">
-function meta(html, prop) {
-  const re = new RegExp(
-    `<meta\\s+(?:property|name)=["']${escapeRx(prop)}["'][^>]*?content=["']([^"']+)["']`,
-    "i"
-  );
-  const m = html.match(re);
-  return m ? decode(m[1]) : "";
+function baseRecord({ url, title, image, caption }) {
+  return { title: title || 'Import', image: image || '', caption: caption || '', ingredients: [], steps: [], tags: ['Import'], source: url, macros: null };
 }
 
-function pickLdJson(html) {
-  // nimm das erste <script type="application/ld+json">...</script>
-  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i;
-  const m = html.match(re);
-  if (!m) return null;
-  const raw = m[1].trim();
-  // Manche Seiten enthalten mehrere JSON-Objekte hintereinander – safe parse:
-  try {
-    return JSON.parse(stripDangerous(raw));
-  } catch {
-    // Versuche, erstes Objekt herauszuschneiden
-    const firstObj = firstJsonBlock(raw);
-    if (firstObj) {
-      try { return JSON.parse(firstObj); } catch { /* ignore */ }
-    }
-  }
-  return null;
-}
+function captionToRecipe(txt) {
+  if (!txt) return { ingredients: [], steps: [], tags: [] };
 
-function firstJsonBlock(s) {
-  let depth = 0, start = -1;
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (c === "{") { if (start === -1) start = i; depth++; }
-    else if (c === "}") { depth--; if (depth === 0 && start !== -1) return s.slice(start, i + 1); }
-  }
-  return null;
-}
+  // Split in Zeilen
+  const lines = txt.replace(/\r/g,'').split('\n').map(l => l.trim()).filter(Boolean);
 
-function textBetween(h, a, b) {
-  const i = h.indexOf(a);
-  if (i < 0) return "";
-  const j = h.indexOf(b, i + a.length);
-  if (j < 0) return "";
-  return clean(h.slice(i + a.length, j));
-}
+  // ganz simple Heuristik:
+  const ingredients = [];
+  const steps = [];
+  const tags = [];
 
-function clean(s) {
-  return (s || "").replace(/\s+/g, " ").trim();
-}
+  // #tags einsammeln
+  lines.forEach(l => {
+    const m = l.match(/#[\p{L}\p{N}_]+/gu);
+    if (m) tags.push(...m.map(t=>t.slice(1)));
+  });
 
-function escapeRx(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+  // Zutaten: Zeilen mit Mengenangaben (g, ml, EL, TL, Stk, Stück, etc.)
+  const ingRe = /(^|\s)(\d+[.,]?\d*\s?(g|ml|l|EL|TL|stk|stück|Stk|Stück)|\d+\s?(x|X)\s?\d+)/i;
+  lines.forEach(l => {
+    if (ingRe.test(l)) ingredients.push(l);
+  });
 
-function decode(s) {
-  try { return decodeURIComponent(s); } catch { return s; }
-}
+  // Schritte: Nummerierte oder Listenpunkte
+  const stepRe = /^(\d+[\).:]|\*|-)\s+/;
+  lines.forEach(l => {
+    if (stepRe.test(l)) steps.push(l.replace(stepRe,'').trim());
+  });
 
-function stripDangerous(s) {
-  // Entfernt HTML-Kommentare & <script> in JSON-Blobs (kommt selten vor)
-  return s.replace(/<!--[\s\S]*?-->/g, "").replace(/<\/?script[^>]*>/gi, "");
-}
+  // Wenn nichts erkannt, nimm Caption als Notiz in Schritt 1
+  if (!ingredients.length && !steps.length && txt) steps.push(txt);
 
-function firstString(x) {
-  if (!x) return "";
-  if (typeof x === "string") return x;
-  if (Array.isArray(x)) return firstString(x[0]);
-  if (typeof x === "object" && x.url) return x.url;
-  return "";
-}
-
-// super einfache Heuristiken:
-function guessIngredients(desc) {
-  if (!desc) return [];
-  // split an Sätzen, picke Zeilen mit Gramm/Stk/ml usw.
-  return desc
-    .split(/[\r\n\.]+/)
-    .map(s => clean(s))
-    .filter(s => /\b(\d+(?:[.,]\d+)?\s?(g|ml|stk|stück|l|tl|el))\b/i.test(s))
-    .slice(0, 12);
-}
-
-function guessSteps(desc) {
-  if (!desc) return [];
-  const lines = desc.split(/[\r\n]+/).map(clean).filter(Boolean);
-  if (lines.length >= 2) return lines.slice(0, 8);
-  // Fallback: Punkte
-  const parts = desc.split(/[.!?]+/).map(clean).filter(Boolean);
-  return parts.slice(0, 8);
+  return { ingredients, steps, tags: Array.from(new Set(tags)).slice(0,20) };
 }
