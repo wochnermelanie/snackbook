@@ -1,10 +1,10 @@
-<!DOCTYPE html><html lang="de"><head>
+﻿<!DOCTYPE html><html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Snackbook Share</title>
 <style>body{font:14px system-ui;padding:24px} .muted{color:#666}</style>
 </head><body>
-<h1>Wird gespeichert…</h1>
-<p class="muted">Falls nichts passiert, <a id="open" href="/">hier öffnen</a>.</p>
+<h1>Wird gespeichertâ€¦</h1>
+<p class="muted">Falls nichts passiert, <a id="open" href="/">hier Ã¶ffnen</a>.</p>
 <script>
 ;(async () => {
   // tiny localForage-like helpers
@@ -27,7 +27,7 @@
     if (m) url = m[0];
   }
 
-  // 3) Als Fallback: nichts gekommen → zurück
+  // 3) Als Fallback: nichts gekommen â†’ zurÃ¼ck
   if (!title && !text && !url) {
     location.href = '/'; return;
   }
@@ -57,7 +57,7 @@
         notes: data.caption || data.notes || ''
       };
     } catch(e) {
-      // fällt unten auf Link-only zurück
+      // fÃ¤llt unten auf Link-only zurÃ¼ck
     }
   }
 
@@ -76,7 +76,7 @@
     };
   }
 
-  // 6) Speichern & öffnen
+  // 6) Speichern & Ã¶ffnen
   const list = (await lf.get(DB)) || [];
   list.unshift(rec);
   await lf.set(DB, list);
@@ -84,3 +84,4 @@
 })();
 </script>
 </body></html>
+

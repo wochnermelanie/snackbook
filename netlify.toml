@@ -1,24 +1,13 @@
-[build]
-  command = "npm run build"
-  publish = "."
-  functions = "netlify/functions"
+﻿[build]
+  publish = "build"
+  command = ""
 
 [functions]
+  directory = "netlify/functions"
   node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-from = "/share"
-to = "/share.html"
-status = 200
-force = true
-
+  external_node_modules = ["linkedom", "cheerio"]
 
 [[headers]]
-  for = "/*"
+  for = "/.netlify/functions/*"
   [headers.values]
-  Service-Worker-Allowed = "/"
+    Access-Control-Allow-Origin = "*"
