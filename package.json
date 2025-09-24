@@ -1,0 +1,8 @@
+﻿{
+    "private":  true,
+    "engines":  {
+                    "node":  "20.x"
+                },
+    "name":  "snackbook",
+    "version":  "1.0.0"
+}

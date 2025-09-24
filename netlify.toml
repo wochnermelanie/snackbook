@@ -1,6 +1,6 @@
 [build]
-  command = ""
-  publish = "build"
+  command = "npm --prefix netlify/functions ci"
+  publish = "."
 
 [build.environment]
   NODE_VERSION = "20.15.1"
