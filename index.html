@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="utf-8" />
@@ -34,15 +34,30 @@
   .grid-btn[aria-pressed="true"]{background:#0b1220;color:#fff}
   .hidden-el{display:none}
   .bullet li{position:relative;padding-left:1.25rem}
-  .bullet li::before{content:"•";position:absolute;left:0;top:0;color:#0f172a}
+  .bullet li::before{content:"â€¢";position:absolute;left:0;top:0;color:#0f172a}
   main{padding-bottom:calc(7rem + env(safe-area-inset-bottom))}
 </style>
+ <link rel="stylesheet" href="/styles.css">
+ <script type="module" src="/scripts/nutrition.mjs"></script>
 </head>
-<body class="bg-white text-gray-900">
+<body class="bg-white text-gray-900"><style>
+  .sb-splash{position:fixed;inset:0;background:#acf0c6;display:flex;align-items:center;justify-content:center;z-index:9999;}
+  .sb-splash img{width:120px;height:auto;opacity:.95}
+  .sb-splash--hide{opacity:0;visibility:hidden;transition:opacity .4s ease}
+</style>
+<div id="sb-splash" class="sb-splash" hidden>
+  <img src="/logo.png" alt="Snackbook">
+</div>
+<script>
+  (function(){
+    const el=document.getElementById("sb-splash");
+    if(el){ el.hidden=false; window.addEventListener("load", ()=>setTimeout(()=>el.classList.add("sb-splash--hide"), 350)); }
+  })();
+</script>
 
 <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b">
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-    <!-- Größeres Logo -->
+    <!-- GrÃ¶ÃŸeres Logo -->
     <a href="/" class="shrink-0 inline-flex items-center" aria-label="Snackbook">
       <img src="/logo.svg" alt="Snackbook"
            class="h-12 md:h-14 w-auto max-w-[300px] block select-none origin-left scale-[1.3]" />
@@ -52,14 +67,14 @@
       <i data-feather="download"></i><span>App installieren</span>
     </button>
     <button id="addFab" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white">
-      <i data-feather="plus"></i><span>Hinzufügen</span>
+      <i data-feather="plus"></i><span>HinzufÃ¼gen</span>
     </button>
   </div>
 </header>
 
 <section id="toolbar" class="max-w-6xl mx-auto px-4 pt-4">
   <div class="relative">
-    <input id="q" class="w-full p-3 pl-10 rounded-xl border focus:outline-none focus:ring-2 focus:ring-gray-900/20" placeholder="Suche nach Gericht oder Zutat…">
+    <input id="q" class="w-full p-3 pl-10 rounded-xl border focus:outline-none focus:ring-2 focus:ring-gray-900/20" placeholder="Suche nach Gericht oder Zutatâ€¦">
     <i data-feather="search" class="absolute left-3 top-3.5 text-slate-500"></i>
   </div>
   <div class="mt-3 flex items-center justify-between">
@@ -81,7 +96,7 @@
       <h2 class="text-xl font-semibold">Sammlungen</h2>
       <select id="colSort" class="border rounded-lg p-2 text-sm">
         <option value="new">Neueste</option>
-        <option value="az">A–Z</option>
+        <option value="az">Aâ€“Z</option>
         <option value="count">Meiste Rezepte</option>
       </select>
     </div>
@@ -107,7 +122,7 @@
           <label class="px-3 py-2 rounded-lg border cursor-pointer">
             Importieren <input id="importData" type="file" accept="application/json" class="hidden">
           </label>
-          <button id="resetApp" class="px-3 py-2 rounded-lg border text-rose-600">Zurücksetzen</button>
+          <button id="resetApp" class="px-3 py-2 rounded-lg border text-rose-600">ZurÃ¼cksetzen</button>
         </div>
       </section>
     </div>
@@ -137,7 +152,7 @@
 <div id="installBanner" class="hidden fixed left-3 right-3 bottom-[5.5rem] z-30 bg-white border rounded-xl shadow p-3 flex items-center justify-between">
   <div class="text-sm">Snackbook als App installieren?</div>
   <div class="flex gap-2">
-    <button id="installLater" class="px-3 py-1.5 rounded-lg border text-sm">Später</button>
+    <button id="installLater" class="px-3 py-1.5 rounded-lg border text-sm">SpÃ¤ter</button>
     <button id="installNow" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm">Installieren</button>
   </div>
 </div>
@@ -150,7 +165,7 @@
   <div class="p-4 space-y-3">
     <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="image"><i data-feather="camera"></i><span>Rezept aus Bild</span></button>
     <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="link"><i data-feather="link"></i><span>Rezept-Link</span></button>
-    <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="manual"><i data-feather="edit-2"></i><span>Rezept hinzufügen</span></button>
+    <button class="w-full flex items-center gap-3 p-3 rounded-xl border" data-action="manual"><i data-feather="edit-2"></i><span>Rezept hinzufÃ¼gen</span></button>
   </div>
 </div>
 
@@ -162,7 +177,7 @@
       <h3 class="font-semibold">Rezept-Link speichern</h3>
       <button data-close class="text-slate-500"><i data-feather="x"></i></button>
     </div>
-    <input id="importUrl" class="w-full p-3 rounded-lg border" placeholder="https://…">
+    <input id="importUrl" class="w-full p-3 rounded-lg border" placeholder="https://â€¦">
     <div class="flex justify-end gap-2 mt-3">
       <button data-close class="px-3 py-2 rounded-lg border">Abbrechen</button>
       <button id="doImport" class="px-3 py-2 rounded-lg bg-gray-900 text-white">Speichern</button>
@@ -188,7 +203,7 @@
         </div>
         <div>
           <label class="text-sm text-slate-500">Schritte (eine je Zeile)</label>
-          <textarea id="e-steps" rows="8" class="w-full p-3 rounded-lg border" placeholder="z.B. Ofen vorheizen&#10;Teig rühren&#10;Backen 25–30 Min"></textarea>
+          <textarea id="e-steps" rows="8" class="w-full p-3 rounded-lg border" placeholder="z.B. Ofen vorheizen&#10;Teig rÃ¼hren&#10;Backen 25â€“30 Min"></textarea>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -217,19 +232,19 @@
       <div class="relative">
         <img id="d-image" class="w-full aspect-[4/3] object-cover rounded-xl bg-gray-100" alt="">
         <div class="absolute top-2 right-2 flex gap-2" data-actions>
-          <button id="editTitleBtn" class="p-2 rounded-lg bg-white/90 border" title="Titel ändern"><i data-feather="edit-2"></i></button>
+          <button id="editTitleBtn" class="p-2 rounded-lg bg-white/90 border" title="Titel Ã¤ndern"><i data-feather="edit-2"></i></button>
         </div>
       </div>
       <div class="flex items-center gap-3 mt-3">
         <div class="inline-flex items-center gap-2 text-sm">
           <span>Portionen:</span>
-          <button id="servingsMinus" class="w-7 h-7 grid place-items-center rounded border">−</button>
+          <button id="servingsMinus" class="w-7 h-7 grid place-items-center rounded border">âˆ’</button>
           <span id="servingsNum" class="min-w-[2ch] text-center font-semibold">1</span>
           <button id="servingsPlus" class="w-7 h-7 grid place-items-center rounded border">+</button>
         </div>
         <div id="slicesBox" class="hidden inline-flex items-center gap-2 text-sm">
-          <span>Stücke:</span>
-          <button id="slicesMinus" class="w-7 h-7 grid place-items-center rounded border">−</button>
+          <span>StÃ¼cke:</span>
+          <button id="slicesMinus" class="w-7 h-7 grid place-items-center rounded border">âˆ’</button>
           <span id="slicesNum" class="min-w-[2ch] text-center font-semibold">12</span>
           <button id="slicesPlus" class="w-7 h-7 grid place-items-center rounded border">+</button>
         </div>
@@ -240,7 +255,7 @@
       <div class="flex gap-2 mb-3">
         <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="ingredients" aria-current="true">Zutaten</button>
         <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="instructions">Zubereitung</button>
-        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="nutrition">Nährwerte</button>
+        <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="nutrition">NÃ¤hrwerte</button>
         <button class="px-3 py-1.5 rounded-lg border text-sm tab" data-pane="notes">Notizen</button>
       </div>
       <div id="pane-ingredients"></div>
@@ -252,7 +267,7 @@
           <button id="saveNotes" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm">Notizen speichern</button>
         </div>
       </div>
-      <p class="text-xs text-slate-500 mt-3">Hinweis: Werte sind Schätzungen. Prüfe Garzeiten/Temperaturen.</p>
+      <p class="text-xs text-slate-500 mt-3">Hinweis: Werte sind SchÃ¤tzungen. PrÃ¼fe Garzeiten/Temperaturen.</p>
     </div>
   </div>
 </div>
@@ -304,10 +319,10 @@ let list=[], gridIsCards=true, sortNewest=true, openId=null;
 /* ===== Mengen/Portionen ===== */
 function parseQty(line){
   const s=String(line).toLowerCase().replace(',','.');
-  const frac = {'½':0.5,'¼':0.25,'¾':0.75};
-  let m = s.match(/(\d+(?:\.\d+)?)|[½¼¾]/);
+  const frac = {'Â½':0.5,'Â¼':0.25,'Â¾':0.75};
+  let m = s.match(/(\d+(?:\.\d+)?)|[Â½Â¼Â¾]/);
   let qty = m ? (frac[m[0]] ?? parseFloat(m[0])) : null;
-  m = s.match(/\b(kg|g|l|ml|el|tl|prise|päckchen|packung|dose|dosen|stück|stk|zehe|ei|eier)\b/);
+  m = s.match(/\b(kg|g|l|ml|el|tl|prise|pÃ¤ckchen|packung|dose|dosen|stÃ¼ck|stk|zehe|ei|eier)\b/);
   const unit = m ? m[1] : null;
   return {qty, unit};
 }
@@ -324,10 +339,10 @@ function scaleLine(line, factor){
   if(u==='l'){ q*=1000; u='ml'; }
   q = q*factor;
   const repl = formatQty(q, u);
-  return esc(String(line).replace(/(\d+(?:\.\d+)?|[½¼¾])(\s*\w+)?/, repl));
+  return esc(String(line).replace(/(\d+(?:\.\d+)?|[Â½Â¼Â¾])(\s*\w+)?/, repl));
 }
 
-/* ===== Nährwerte UI ===== */
+/* ===== NÃ¤hrwerte UI ===== */
 function nutritionUI(r){
   const s = Math.max(1, Number(r.servings||1));
   const perPortion = {
@@ -336,8 +351,8 @@ function nutritionUI(r){
     protein: r.protein!=null? Math.round(r.protein/s) : null,
     fat: r.fat!=null? Math.round(r.fat/s) : null
   };
-  const row = (k,v,u='')=>`<div class="flex justify-between py-2 border-b"><span>${k}</span><span class="text-slate-500">${v!=null?v+(u?(' '+u):''):'—'}</span></div>`;
-  // Kuchen pro Stück (optional)
+  const row = (k,v,u='')=>`<div class="flex justify-between py-2 border-b"><span>${k}</span><span class="text-slate-500">${v!=null?v+(u?(' '+u):''):'â€”'}</span></div>`;
+  // Kuchen pro StÃ¼ck (optional)
   const cake = /kuchen|torte|cake|muffin/i.test( (r.title||'') + ' ' + (r.ingredients||[]).join(' ') );
   const pieces = Math.max(1, Number(r.slices||12));
   const perSlice = cake && r.kcal!=null ? {
@@ -353,7 +368,7 @@ function nutritionUI(r){
     ${row('Kohlenhydrate', perPortion.carbs, 'g')}
     ${row('Protein', perPortion.protein, 'g')}
     ${row('Fett', perPortion.fat, 'g')}
-    ${cake ? `<div class="px-3 py-2 font-semibold bg-slate-50">Pro Stück (x${pieces})</div>
+    ${cake ? `<div class="px-3 py-2 font-semibold bg-slate-50">Pro StÃ¼ck (x${pieces})</div>
       ${row('Kalorien', perSlice.kcal, 'kcal')}
       ${row('Kohlenhydrate', perSlice.carbs, 'g')}
       ${row('Protein', perSlice.protein, 'g')}
@@ -371,11 +386,11 @@ function autoTags(rec){
   const t=new Set(rec.tags||[]);
   const ings=(rec.ingredients||[]).join(' ').toLowerCase();
   const p = { protein: rec.protein!=null && rec.servings? Math.round(rec.protein/rec.servings) : null };
-  const isVegan = !/(fleisch|huhn|hähnchen|pute|rind|schwein|fisch|lachs|ei|eier|milch|käse|kaese|butter|joghurt|quark)/.test(ings);
-  const isVegetarian = !/(fleisch|huhn|hähnchen|pute|rind|schwein|fisch|lachs)/.test(ings);
+  const isVegan = !/(fleisch|huhn|hÃ¤hnchen|pute|rind|schwein|fisch|lachs|ei|eier|milch|kÃ¤se|kaese|butter|joghurt|quark)/.test(ings);
+  const isVegetarian = !/(fleisch|huhn|hÃ¤hnchen|pute|rind|schwein|fisch|lachs)/.test(ings);
   if(isVegan) t.add('Vegan'); else if(isVegetarian) t.add('Vegetarisch');
   if(/nudel|pasta|spaghetti|penne/.test(ings)) t.add('Pasta');
-  if(/huhn|hähnchen|pute|putenbrust/.test(ings)) t.add('Geflügel');
+  if(/huhn|hÃ¤hnchen|pute|putenbrust/.test(ings)) t.add('GeflÃ¼gel');
   if(/kuchen|torte|dessert|zucker|schokolade/.test(ings)) t.add('Dessert');
   if(p.protein!=null && p.protein>=25) t.add('High Protein');
   if(t.size===0) t.add('Unsortiert');
@@ -391,9 +406,9 @@ function recipeCard(r){
       ${r.image?`<img src="${esc(r.image)}" class="w-full aspect-[4/3] object-cover">`:`<div class="w-full aspect-[4/3] bg-gray-100 grid place-items-center text-slate-500">Kein Bild</div>`}
       <div class="absolute top-2 right-2 flex gap-2" data-actions>
         <button data-edit class="p-2 rounded-lg bg-white/90 border" title="Umbenennen"><i data-feather="edit-2"></i></button>
-        <button data-del class="p-2 rounded-lg bg-white/90 border" title="Löschen"><i data-feather="trash-2"></i></button>
+        <button data-del class="p-2 rounded-lg bg-white/90 border" title="LÃ¶schen"><i data-feather="trash-2"></i></button>
       </div>
-      ${badge?`<span class="absolute left-2 bottom-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/90 text-slate-800 shadow">${badge==='instagram'?'📷 instagram':'🔗 link'}</span>`:''}
+      ${badge?`<span class="absolute left-2 bottom-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/90 text-slate-800 shadow">${badge==='instagram'?'ðŸ“· instagram':'ðŸ”— link'}</span>`:''}
       ${r.createdAt?`<span class="absolute right-2 bottom-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-black/80 text-white">${ago(r.createdAt)}</span>`:''}
     </div>
     <div class="p-3"><h3 class="font-semibold leading-snug">${esc(r.title)}</h3></div>
@@ -415,7 +430,7 @@ function renderRecipes(){
   grid.innerHTML = data.length ? data.map(recipeCard).join('') :
     `<div class="col-span-full border border-dashed rounded-2xl p-10 text-center">
        <p class="text-slate-500 mb-3">Noch keine Rezepte</p>
-       <button id="ctaAdd" class="px-3 py-2 rounded-lg bg-gray-900 text-white">Hinzufügen</button>
+       <button id="ctaAdd" class="px-3 py-2 rounded-lg bg-gray-900 text-white">HinzufÃ¼gen</button>
      </div>`;
   feather.replace();
   bindRecipeGrid();
@@ -430,7 +445,7 @@ function bindRecipeGrid(){
     const btn = e.target.closest('[data-actions] button');
     if (btn?.hasAttribute('data-edit')) { openRename(r); e.stopPropagation(); return; }
     if (btn?.hasAttribute('data-del'))  {
-      if (!confirm('Rezept löschen?')) return;
+      if (!confirm('Rezept lÃ¶schen?')) return;
       list = list.filter(x => x.id !== id); await save(list); renderRecipes(); return;
     }
     openDetail(r);
@@ -488,7 +503,7 @@ $$('#importModal [data-close]').forEach(b=> b.onclick=closeImport);
 document.getElementById('doImport').onclick = async () => {
   const url = document.getElementById('importUrl').value.trim(); if (!url) return;
   const btn = document.getElementById('doImport');
-  btn.disabled = true; btn.textContent = 'Speichere…';
+  btn.disabled = true; btn.textContent = 'Speichereâ€¦';
   try{
     const isIG = /instagram\.com\/(p|reel|tv)\//.test(url);
     const endpoint = isIG ? '/.netlify/functions/insta' : '/.netlify/functions/extract';
@@ -499,7 +514,7 @@ document.getElementById('doImport').onclick = async () => {
     const ings   = Array.isArray(data.ingredients)? data.ingredients : [];
     const baseServ = Math.max(1, Number(data.servings||2));
 
-    // Gesamt-Nährwerte (wie gehabt)
+    // Gesamt-NÃ¤hrwerte (wie gehabt)
     const macros = await fetch('/.netlify/functions/nutrition', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ ingredients: ings, servings: baseServ })
@@ -514,9 +529,9 @@ document.getElementById('doImport').onclick = async () => {
       protein: macros.protein ?? null, fat: macros.fat ?? null
     };
 	
-	   // Bei Instagram: falls trotzdem keine Caption/Listen erkannt -> Editor öffnen
+	   // Bei Instagram: falls trotzdem keine Caption/Listen erkannt -> Editor Ã¶ffnen
     if (isIG && (!ings.length && !steps.length)) {
-      openEditor(rec); // vorbefüllt mit Titel/Bild
+      openEditor(rec); // vorbefÃ¼llt mit Titel/Bild
     } else {
       rec.tags = autoTags(rec);
       list.unshift(rec); await save(list);
@@ -657,7 +672,7 @@ $('#d-close').onclick=()=>{ detail.classList.remove('open'); $('#backdrop').clas
 
 /* ===== Toolbar ===== */
 $('#gridBtn').onclick=()=>{ gridIsCards=!gridIsCards; $('#gridBtn').setAttribute('aria-pressed', gridIsCards?'true':'false'); renderRecipes(); };
-$('#sortBtn').onclick=()=>{ sortNewest=!sortNewest; $('#sortBtn').textContent = sortNewest ? 'Neueste' : 'Älteste'; renderRecipes(); };
+$('#sortBtn').onclick=()=>{ sortNewest=!sortNewest; $('#sortBtn').textContent = sortNewest ? 'Neueste' : 'Ã„lteste'; renderRecipes(); };
 $('#q').oninput=()=>renderRecipes();
 
 /* ===== Data IO ===== */
@@ -672,9 +687,9 @@ $('#importData').onchange=async (e)=>{
     const j=JSON.parse(t);
     if (Array.isArray(j.recipes)) { list=j.recipes; await save(list); }
     renderRecipes(); alert('Import fertig');
-  }catch(err){ alert('Ungültiges JSON'); }
+  }catch(err){ alert('UngÃ¼ltiges JSON'); }
 };
-$('#resetApp').onclick=async ()=>{ if(!confirm('Alle Rezepte löschen?')) return; list=[]; await save(list); renderRecipes(); };
+$('#resetApp').onclick=async ()=>{ if(!confirm('Alle Rezepte lÃ¶schen?')) return; list=[]; await save(list); renderRecipes(); };
 
 /* ===== Install Prompt ===== */
 let deferredPrompt=null;
@@ -707,3 +722,8 @@ navigator.serviceWorker?.addEventListener('message', (e)=>{
 
 </body>
 </html>
+
+
+
+
+

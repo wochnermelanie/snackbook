@@ -1,0 +1,11 @@
+﻿{
+  "name": "Snackbook",
+  "short_name": "Snackbook",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color":"#acf0c6",
+  "background_color":"#acf0c6",
+  "icons": []
+}
+
+

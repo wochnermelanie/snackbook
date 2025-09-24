@@ -1,11 +1,6 @@
-﻿[build]
-  publish = "build"
-  command = ""
-
-[functions]
+﻿[functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["linkedom", "cheerio"]
 
 [[headers]]
   for = "/.netlify/functions/*"

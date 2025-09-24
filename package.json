@@ -13,3 +13,11 @@
     "autoprefixer": "^10.4.20"
   }
 }
+{
+  "name": "snackbook-functions",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

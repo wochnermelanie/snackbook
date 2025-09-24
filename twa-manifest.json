@@ -20,8 +20,8 @@
     "path": "C:\\Users\\admin\\snackbook\\android.keystore",
     "alias": "(upload)"
   },
-  "appVersionName": "20",
-  "appVersionCode": 20,
+  "appVersionName": "21",
+  "appVersionCode": 21,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://snackbook.org/manifest.json",
@@ -34,17 +34,17 @@
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "fullScopeUrl": "https://snackbook.org/",
+  "minSdkVersion": 21,
   "shareTarget": {
-  "action": "https://snackbook.org/share",
-  "method": "GET",
-  "enctype": "application/x-www-form-urlencoded",
-  "params": {
-    "title": "title",
-    "text": "text",
-    "url": "url"
-  }
-}
-,
+    "action": "https://snackbook.org/share",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "orientation": "portrait",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
@@ -52,5 +52,5 @@
   "protocolHandlers": [],
   "fileHandlers": [],
   "launchHandlerClientMode": "",
-  "appVersion": "20"
+  "appVersion": "21"
 }
