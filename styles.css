@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --sb-primary:#acf0c6;
   --sb-text:#0F172A;
   --sb-muted:#475569;
@@ -50,3 +50,78 @@
 .sb-macros{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; }
 .sb-pill{ display:inline-flex; align-items:center; padding:.25rem .5rem; border-radius:999px; background:var(--sb-chip); color:var(--sb-text); font-weight:600; font-size:.9rem; }
 .sb-pill--kcal{ background:var(--sb-primary); color:#0b3b23; }
+
+
+:root{
+  --sb-primary:#acf0c6;
+  --sb-text:#0F172A;
+  --sb-muted:#475569;
+  --sb-help:#94A3B8;
+  --sb-chip:#F1F5F9;
+  --sb-card:#FFFFFF;
+  --sb-bg:#FAFAFA;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--sb-bg);color:var(--sb-text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Segoe UI Emoji}
+img{max-width:100%;display:block}
+
+/* Header */
+.sb-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #eee}
+.sb-brand{display:flex;gap:12px;align-items:center}
+.sb-logo{width:36px;height:36px;border-radius:12px;object-fit:contain;background:var(--sb-primary)}
+.sb-title{margin:0;font-size:20px}
+.sb-sub{margin:0;font-size:12px;color:var(--sb-help)}
+.sb-icon-btn{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:8px;line-height:0}
+.sb-icon{width:20px;height:20px}
+
+/* Search */
+.sb-search{padding:12px 16px}
+.sb-search-box{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px 10px}
+.sb-search-box input{flex:1;border:none;outline:none;font-size:16px}
+.sb-chip{display:inline-flex;gap:6px;align-items:center;background:var(--sb-chip);border:none;border-radius:999px;padding:6px 10px;color:var(--sb-text);font-weight:600}
+.sb-link-btn{display:inline-flex;gap:6px;align-items:center;background:transparent;border:none;color:var(--sb-muted);font-weight:600}
+
+/* Sections */
+.sb-section{padding:6px 16px 16px}
+.sb-section-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 10px}
+.sb-section-head h2{margin:0;font-size:18px}
+
+/* Collections */
+.sb-collections{padding:6px 16px 6px}
+.sb-collections-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sb-collection{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px;display:grid;gap:8px}
+.sb-collection h3{margin:0;font-size:16px}
+.sb-collection p{margin:0;color:var(--sb-help);font-size:12px}
+
+/* Recipes grid */
+.sb-recipes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sb-card{background:var(--sb-card);border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.sb-card img{aspect-ratio:1.2/1;object-fit:cover;background:#eee}
+.sb-card .sb-card-body{padding:10px;display:grid;gap:8px}
+.sb-card h3{margin:0;font-size:15px}
+.sb-card .sb-meta{display:flex;gap:8px;align-items:center;color:var(--sb-help);font-size:12px}
+.sb-actions{display:flex;gap:8px}
+.sb-action{background:transparent;border:1px solid #e5e7eb;border-radius:10px;padding:6px;line-height:0}
+.sb-macros{display:flex;gap:6px;flex-wrap:wrap}
+.sb-pill{display:inline-flex;align-items:center;padding:.25rem .5rem;border-radius:999px;background:var(--sb-chip);color:var(--sb-text);font-weight:600;font-size:.82rem}
+.sb-pill--kcal{background:var(--sb-primary);color:#0b3b23}
+
+/* Dialog */
+.sb-dialog{border:none;border-radius:16px;padding:0}
+.sb-dialog::backdrop{background:rgba(0,0,0,.2)}
+.sb-dialog-content{padding:12px}
+.sb-dialog-content header{padding:8px 2px 12px}
+.sb-dialog-content h3{margin:0}
+.sb-filter-grid{display:grid;gap:12px}
+.sb-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.sb-btn{background:var(--sb-primary);color:#0b3b23;border:none;border-radius:12px;padding:8px 12px;font-weight:700}
+.sb-btn-ghost{background:#fff;color:var(--sb-text);border:1px solid #e5e7eb;border-radius:12px;padding:8px 12px;font-weight:600}
+
+/* Tabs */
+.sb-tabs{position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px}
+.sb-tabs button{background:#fff;border:none;border-radius:12px;padding:8px}
+.sb-tabs button.active{background:var(--sb-primary);color:#0b3b23}
+
+/* Toast */
+.sb-toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s}
+.sb-toast.show{opacity:1}
