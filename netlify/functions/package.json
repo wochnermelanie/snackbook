@@ -1,14 +1,9 @@
-{
-    "version": "1.0.0",
-    "name": "snackbook-functions",
-    "type": "module",
-    "engines": {
-        "node": "20.x"
-    },
-    "dependencies": {
-        "cheerio": "^1.0.0-rc.12",
-        "linkedom": "^0.18.0",
-        "snackbook": "file:../.."
-    },
-    "private": true
+﻿{
+  "name": "snackbook-functions",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
 }
