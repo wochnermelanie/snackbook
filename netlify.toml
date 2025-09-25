@@ -1,6 +1,19 @@
-﻿[functions]
+[build]
+  publish = "."
+  command = ""
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  external_node_modules = ["linkedom", "cheerio"]
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Service-Worker-Allowed = "/"
 
 [[headers]]
   for = "/.netlify/functions/*"
