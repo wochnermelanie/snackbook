@@ -1,9 +1,6 @@
 [build]
   publish = "."
-  command = ""
-
-[build.environment]
-  NODE_VERSION = "20"
+  command = "npm ci --prefix netlify/functions"
 
 [functions]
   directory = "netlify/functions"
@@ -19,3 +16,14 @@
   for = "/.netlify/functions/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+
+# SPA-Fallbacks
+[[redirects]]
+  from = "/share"
+  to = "/share.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
