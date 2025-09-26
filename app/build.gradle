@@ -26,13 +26,13 @@ def twaManifest = [
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
     name: 'Snackbook', // The application name.
     launcherName: 'Snackbook', // The name shown on the Android Launcher.
-    themeColor: '#FFFFFF', // The color used for the status bar.
-    themeColorDark: '#FFFFFF', // The color used for the dark status bar.
-    navigationColor: '#FFFFFF', // The color used for the navigation bar.
-    navigationColorDark: '#FFFFFF', // The color used for the dark navbar.
-    navigationDividerColor: '#FFFFFF', // The navbar divider color.
-    navigationDividerColorDark: '#FFFFFF', // The dark navbar divider color.
-    backgroundColor: '#FFFFFF', // The color used for the splash screen background.
+    themeColor: '#ACF0C6', // The color used for the status bar.
+    themeColorDark: '#ACF0C6', // The color used for the dark status bar.
+    navigationColor: '#ACF0C6', // The color used for the navigation bar.
+    navigationColorDark: '#ACF0C6', // The color used for the dark navbar.
+    navigationDividerColor: '#ACF0C6', // The navbar divider color.
+    navigationDividerColorDark: '#ACF0C6', // The dark navbar divider color.
+    backgroundColor: '#ACF0C6', // The color used for the splash screen background.
     enableNotifications: true, // Set to true to enable notification delegation.
     // Every shortcut must include the following fields:
     // - name: String that will show up in the shortcut.
@@ -57,8 +57,8 @@ android {
         applicationId "com.snackbook.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 21
-        versionName "21"
+        versionCode 22
+        versionName "22"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
