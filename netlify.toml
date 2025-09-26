@@ -1,11 +1,11 @@
 [build]
   publish = "."
-  command = "npm ci --prefix netlify/functions"
+  environment = { NODE_VERSION = "20.11.1" }
 
 [functions]
-  directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["linkedom", "cheerio"]
+  external_node_modules = ["cheerio","linkedom"]
+  directory = "netlify/functions"
 
 [[headers]]
   for = "/*"
@@ -17,7 +17,6 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
 
-# SPA-Fallbacks
 [[redirects]]
   from = "/share"
   to = "/share.html"

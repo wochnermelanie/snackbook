@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -14,7 +14,10 @@
   <script type="module" src="/scripts/ui.mjs"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24..48,300..700,0..1,-25..200" />
 </head>
-<body>
+<body><div id="sb-splash" class="sb-splash" hidden>
+  <img src="/icon-192.png" alt="Snackbook">
+</div>
+<script>(function(){const el=document.getElementById('sb-splash');if(el){el.hidden=false;window.addEventListener('load',()=>setTimeout(()=>el.classList.add('sb-splash--hide'),380));}})();</script>
   <header class="sb-header">
     <div class="sb-brand">
       <img src="/logo.png" alt="Snackbook" class="sb-logo">
