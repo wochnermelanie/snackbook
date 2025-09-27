@@ -1,4 +1,4 @@
-﻿import cheerio from 'cheerio';
+import cheerio from 'cheerio';
 export async function handler(event){
   const url = (event.queryStringParameters||{}).url;
   if(!url) return { statusCode:400, body:'url missing' };

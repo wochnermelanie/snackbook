@@ -1,4 +1,4 @@
-﻿// Creates a recipe draft from an image using OpenAI Vision.
+// Creates a recipe draft from an image using OpenAI Vision.
 // Request body: either a data URL (string) or JSON { image: "data:image/...;base64,..." }
 
 const KEY = process.env.OPENAI_API_KEY;

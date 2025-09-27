@@ -1,4 +1,4 @@
-﻿/**
+/**
  * /fdc Function â€“ USDA FoodData Central Proxy
  * Query (GET/POST):
  *  - name: Zutatentext (z.B. "Haferflocken")

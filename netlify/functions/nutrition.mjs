@@ -1,4 +1,4 @@
-﻿// netlify/functions/nutrition.mjs
+// netlify/functions/nutrition.mjs
 const KEY = process.env.OPENAI_API_KEY || "";
 
 // sehr kleine NÃ¤hrwert-DB (pro 100g / 100ml / StÃ¼ck)
