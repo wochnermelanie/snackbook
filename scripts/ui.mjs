@@ -11,3 +11,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Falls Karten noch keine Makros zeigen: nutrition.mjs zieht sie automatisch hoch
   // Voraussetzung: Karten haben data-recipe-card, data-servings und data-ingredients (JSON).
 });
+

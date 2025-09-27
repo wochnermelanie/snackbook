@@ -1,10 +1,10 @@
 ﻿/**
- * /fdc Function – USDA FoodData Central Proxy
+ * /fdc Function â€“ USDA FoodData Central Proxy
  * Query (GET/POST):
  *  - name: Zutatentext (z.B. "Haferflocken")
  *  - amount: Zahl der Menge
  *  - unit: "g" | "ml" | "Stk"
- *  - approxWeight: optional Gramm/ML je Stück (Fallback 60)
+ *  - approxWeight: optional Gramm/ML je StÃ¼ck (Fallback 60)
  *
  * Netlify ENV required: FDC_API_KEY
  */
@@ -28,7 +28,7 @@ export async function handler(event) {
     const name = String(params.name || "").trim();
     const amount = Number(params.amount || 0);
     const unit = String(params.unit || "g").toLowerCase();
-    const approxWeight = Number(params.approxWeight || 60); // für "Stk"
+    const approxWeight = Number(params.approxWeight || 60); // fÃ¼r "Stk"
 
     if (!name) return json({ error: "name fehlt" }, 400);
     if (!process.env.FDC_API_KEY) {
@@ -39,7 +39,7 @@ export async function handler(event) {
     let base = 0; let baseType = "g";
     if (unit === "g" || unit === "gramm") { base = amount; baseType = "g"; }
     else if (unit === "ml") { base = amount; baseType = "ml"; }
-    else if (unit === "stk" || unit === "stück" || unit === "st") { base = amount * approxWeight; baseType = "g"; }
+    else if (unit === "stk" || unit === "stÃ¼ck" || unit === "st") { base = amount * approxWeight; baseType = "g"; }
     else if (unit === "n.b." || unit === "nb" || unit === "n.b") { base = 0; baseType = "g"; }
     else { base = amount; baseType = "g"; }
 
@@ -54,9 +54,9 @@ export async function handler(event) {
     if (!res.ok) return json({ error: "FDC Fehler" }, 502);
     const data = await res.json();
     const food = (data.foods && data.foods[0]) || null;
-    if (!food) return json({ error: `Keine FDC-Treffer für "${name}"` }, 404);
+    if (!food) return json({ error: `Keine FDC-Treffer fÃ¼r "${name}"` }, 404);
 
-    // Nährstoffe mappen
+    // NÃ¤hrstoffe mappen
     const NMAP = {
       energyKcal: 1008, // Energie (kcal)
       protein: 1003,
@@ -122,3 +122,5 @@ function json(body, statusCode = 200) {
   };
 }
 function round1(n){ return Math.round((n + Number.EPSILON)*10)/10; }
+
+

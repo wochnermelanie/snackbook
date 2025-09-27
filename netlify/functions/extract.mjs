@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+﻿import cheerio from 'cheerio';
 export async function handler(event){
   const url = (event.queryStringParameters||{}).url;
   if(!url) return { statusCode:400, body:'url missing' };
@@ -6,3 +6,4 @@ export async function handler(event){
   const $ = cheerio.load(html); const title = title.first().text().trim();
   return { statusCode:200, headers:{'content-type':'application/json'}, body: JSON.stringify({ ok:true, title }) };
 }
+

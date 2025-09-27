@@ -1,4 +1,4 @@
-{
+﻿{
   "packageId": "com.snackbook.app",
   "host": "snackbook.org",
   "name": "Snackbook",
@@ -54,3 +54,4 @@
   "launchHandlerClientMode": "",
   "appVersion": "22"
 }
+

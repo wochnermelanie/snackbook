@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Aggregate via USDA proxy (/fdc). Renders macro pills on cards.
  */
 const round1 = (n)=>Math.round((n+Number.EPSILON)*10)/10;
@@ -42,3 +42,4 @@ export function renderMacroPills(el, n){
 }
 window.SB = window.SB || {};
 window.SB.nutrition = { aggregateOfficial, perPortion, renderMacroPills };
+

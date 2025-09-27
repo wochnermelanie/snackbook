@@ -19,7 +19,7 @@ export async function handler(event) {
       (event.body ? JSON.parse(event.body).url : undefined);
 
     if (!url || !/^https?:\/\/(www\.)?(instagram\.com)\/+/i.test(url)) {
-      return json({ error: "Bitte einen gültigen Instagram-Link senden." }, 400);
+      return json({ error: "Bitte einen gÃ¼ltigen Instagram-Link senden." }, 400);
     }
 
     const html = await fetchText(url);
@@ -61,7 +61,7 @@ function extractFromInstagramHTML(html, sourceUrl) {
   const og = prop => document.querySelector(`meta[property="${prop}"]`)?.getAttribute("content") || "";
 
   let title = ld?.headline || og("og:title") || document.title || "Instagram";
-  title = (title || "").replace(/\s*•\s*Instagram\s*$/i, "").trim();
+  title = (title || "").replace(/\s*â€¢\s*Instagram\s*$/i, "").trim();
   const image = ld?.image?.url || ld?.image || og("og:image") || "";
 
   return {
@@ -78,3 +78,4 @@ function extractFromInstagramHTML(html, sourceUrl) {
 function safeJson(s) {
   try { return JSON.parse(s); } catch { return null; }
 }
+

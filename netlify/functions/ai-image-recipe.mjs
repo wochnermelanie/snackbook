@@ -1,8 +1,8 @@
-// Creates a recipe draft from an image using OpenAI Vision.
+﻿// Creates a recipe draft from an image using OpenAI Vision.
 // Request body: either a data URL (string) or JSON { image: "data:image/...;base64,..." }
 
 const KEY = process.env.OPENAI_API_KEY;
-const MODEL = "gpt-4o-mini"; // günstig + gut für Vision
+const MODEL = "gpt-4o-mini"; // gÃ¼nstig + gut fÃ¼r Vision
 
 export async function handler(event) {
   try {
@@ -24,11 +24,11 @@ export async function handler(event) {
     // 2) Prompt
     const prompt =
       "Erzeuge aus dem Bild ein plausibles Rezept als valides JSON. " +
-      "Gib nur JSON zurück – keine Erklärungen. Felder: " +
+      "Gib nur JSON zurÃ¼ck â€“ keine ErklÃ¤rungen. Felder: " +
       "{title, servings, ingredients[], steps[]}. " +
       "ingredients: je Zutat eine Zeile (mit Menge + Einheit, wenn erkennbar). " +
       "steps: kurze, nummerierte Kochschritte. " +
-      "Wenn Angaben unsicher sind, schätze sinnvoll.";
+      "Wenn Angaben unsicher sind, schÃ¤tze sinnvoll.";
 
     // 3) OpenAI call
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -91,3 +91,5 @@ function json(status, body) {
     body: JSON.stringify(body)
   };
 }
+
+

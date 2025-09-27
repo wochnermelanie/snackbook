@@ -1,9 +1,9 @@
-// netlify/functions/nutrition.mjs
+﻿// netlify/functions/nutrition.mjs
 const KEY = process.env.OPENAI_API_KEY || "";
 
-// sehr kleine Nährwert-DB (pro 100g / 100ml / Stück)
+// sehr kleine NÃ¤hrwert-DB (pro 100g / 100ml / StÃ¼ck)
 const DB = [
-  ["hähnchenbrust", /h(ä|ae)hnchen(brust)?|pute(n)?brust|huhn/i, "100g", 110, 0, 23, 1.5],
+  ["hÃ¤hnchenbrust", /h(Ã¤|ae)hnchen(brust)?|pute(n)?brust|huhn/i, "100g", 110, 0, 23, 1.5],
   ["rinderhack", /rinderhack|rind(hack)?/i, "100g", 250, 0, 26, 17],
   ["reis, roh", /reis(?!milch)/i, "100g", 350, 78, 7, 1],
   ["nudeln, roh", /nudeln|pasta|spaghetti|penne/i, "100g", 360, 73, 13, 2],
@@ -11,7 +11,7 @@ const DB = [
   ["zucker", /zucker/i, "100g", 400, 100, 0, 0],
   ["mehl", /mehl/i, "100g", 364, 76, 10, 1],
   ["butter", /butter/i, "100g", 745, 0, 1, 82],
-  ["öl", /(oel|öl|olive|raps).*(öl|oil)|\böl\b/i, "100g", 884, 0, 0, 100],
+  ["Ã¶l", /(oel|Ã¶l|olive|raps).*(Ã¶l|oil)|\bÃ¶l\b/i, "100g", 884, 0, 0, 100],
   ["milch 3.5%", /milch/i, "100ml", 64, 5, 3.4, 3.6],
   ["eier", /\bei(er)?\b/i, "1pc", 78, 0.6, 6.3, 5.3],
   ["banane", /banane/i, "100g", 89, 23, 1, 0.3],
@@ -26,7 +26,7 @@ const APPROX_PIECES = [
   [/apfel/i, 150],
   [/knoblauch|zehe/i, 5],
   [/zwiebel/i, 120],
-  [/möhre|karotte/i, 80]
+  [/mÃ¶hre|karotte/i, 80]
 ];
 
 export async function handler(event) {
@@ -73,10 +73,10 @@ export async function handler(event) {
 /* ---------- Helpers ---------- */
 function parseLine(s){
   const t = s.toLowerCase().replace(',','.');
-  const frac = {'½':0.5,'¼':0.25,'¾':0.75};
-  const mQty = t.match(/(\d+(?:\.\d+)?)|[½¼¾]/);
+  const frac = {'Â½':0.5,'Â¼':0.25,'Â¾':0.75};
+  const mQty = t.match(/(\d+(?:\.\d+)?)|[Â½Â¼Â¾]/);
   const qty = mQty ? (frac[mQty[0]] ?? parseFloat(mQty[0])) : null;
-  const mUnit = t.match(/\b(kg|g|l|ml|el|tl|prise|päckchen|packung|dose|dosen|stück|stk|zehe|ei|eier)\b/);
+  const mUnit = t.match(/\b(kg|g|l|ml|el|tl|prise|pÃ¤ckchen|packung|dose|dosen|stÃ¼ck|stk|zehe|ei|eier)\b/);
   const unit = mUnit ? mUnit[1] : null;
   return { qty, unit, text: s };
 }
@@ -90,7 +90,7 @@ function toGrams({qty, unit, text}){
   if (unit === 'g')  return qty;
   if (unit === 'el') return qty * 15;
   if (unit === 'tl') return qty * 5;
-  if (unit === 'stück' || unit === 'stk' || unit === 'ei' || unit === 'eier') {
+  if (unit === 'stÃ¼ck' || unit === 'stk' || unit === 'ei' || unit === 'eier') {
     for (const [re, g] of APPROX_PIECES) if (re.test(text)) return g * qty;
     return 50 * qty;
   }
@@ -106,7 +106,7 @@ function toMilli({qty, unit}){
 }
 function pieceCount({qty, unit}, text){
   if (qty == null) return 1;
-  if (unit === 'stück' || unit === 'stk' || unit === 'ei' || unit === 'eier') return qty;
+  if (unit === 'stÃ¼ck' || unit === 'stk' || unit === 'ei' || unit === 'eier') return qty;
   if (/\bei(er)?\b|banane|apfel|zwiebel/i.test(text)) return qty;
   return qty;
 }
@@ -125,7 +125,7 @@ async function aiGuessQty(text){
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [{ role:"user", content:[{ type:"text", text:
-          "Schätze aus dieser Zutatenzeile eine Menge und Einheit. Antworte als JSON {qty:number, unit:string|null}. Zeile: "+text
+          "SchÃ¤tze aus dieser Zutatenzeile eine Menge und Einheit. Antworte als JSON {qty:number, unit:string|null}. Zeile: "+text
         }]}],
         response_format: { type: "json_object" }
       })
@@ -137,3 +137,5 @@ async function aiGuessQty(text){
 function json(status, body){
   return { statusCode: status, headers: { "content-type":"application/json", "cache-control":"no-store" }, body: JSON.stringify(body) };
 }
+
+

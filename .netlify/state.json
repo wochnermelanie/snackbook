@@ -1,8 +1,8 @@
-{
+﻿{
 	"siteId": "b055a86f-3430-40d7-b2db-cf938c61f70a",
 	"geolocation": {
 		"data": {
-			"city": "Mödling",
+			"city": "MÃ¶dling",
 			"country": {
 				"code": "AT",
 				"name": "Austria"
@@ -19,3 +19,4 @@
 		"timestamp": 1758518995568
 	}
 }
+

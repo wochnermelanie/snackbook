@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -6,7 +6,7 @@
   <title>Snackbook - Deine Rezept-App</title>
   <meta name="description" content="Speichere und organisiere deine Rezepte aus dem Web"/>
 
-  <!-- Rein weiß für System/UI -->
+  <!-- Rein weiÃŸ fÃ¼r System/UI -->
   <meta name="theme-color" content="#FFFFFF">
   <style>
     html, body { background:#fff; margin:0; }
@@ -30,7 +30,7 @@
     .ingredient-checkbox:checked + .ingredient-label { text-decoration: line-through; color:#9ca3af; }
     .cooking-step { font-size: 1.125rem; line-height: 1.75rem; margin-bottom: 1rem; }
 
-    /* Loader Overlay (hell/weiß) */
+    /* Loader Overlay (hell/weiÃŸ) */
     #app-loader {
       backdrop-filter: blur(2px);
       transition: opacity .25s ease, visibility .25s ease;
@@ -43,11 +43,11 @@
 </head>
 <body>
 
-  <!-- Minimaler weißer Loader -->
+  <!-- Minimaler weiÃŸer Loader -->
   <div id="app-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
     <div class="flex items-center space-x-3">
       <div class="h-6 w-6 rounded-full border-2 border-gray-300 border-t-gray-900 animate-spin"></div>
-      <span class="text-sm text-gray-600">Snackbook lädt…</span>
+      <span class="text-sm text-gray-600">Snackbook lÃ¤dtâ€¦</span>
     </div>
   </div>
 
@@ -98,7 +98,7 @@
               <span class="nutrition-pill bg-yellow-100 text-yellow-800">35 g KH</span>
             </div>
             <div class="flex flex-wrap gap-2">
-              <span class="tag-badge">Frühstück</span>
+              <span class="tag-badge">FrÃ¼hstÃ¼ck</span>
               <span class="tag-badge">Vegetarisch</span>
               <span class="tag-badge">Schnell</span>
             </div>
@@ -116,7 +116,7 @@
               <span class="nutrition-pill bg-yellow-100 text-yellow-800">25 g KH</span>
             </div>
             <div class="flex flex-wrap gap-2">
-              <span class="tag-badge">Frühstück</span>
+              <span class="tag-badge">FrÃ¼hstÃ¼ck</span>
               <span class="tag-badge">High-Protein</span>
               <span class="tag-badge">Einfach</span>
             </div>
@@ -147,7 +147,7 @@
     <div id="add-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
       <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Rezept hinzufügen</h2>
+          <h2 class="text-xl font-bold">Rezept hinzufÃ¼gen</h2>
           <button id="close-add-modal" class="text-gray-500 hover:text-gray-700">
             <i data-feather="x"></i>
           </button>
@@ -155,11 +155,11 @@
         <div class="space-y-4">
           <button id="add-from-url" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
             <i data-feather="link" class="mr-3"></i>
-            <span>Aus URL einfügen</span>
+            <span>Aus URL einfÃ¼gen</span>
           </button>
           <button id="add-from-text" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
             <i data-feather="clipboard" class="mr-3"></i>
-            <span>Text einfügen</span>
+            <span>Text einfÃ¼gen</span>
           </button>
           <button id="add-from-image" class="w-full p-4 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50">
             <i data-feather="image" class="mr-3"></i>
@@ -173,7 +173,7 @@
     <div id="url-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
       <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">URL einfügen</h2>
+          <h2 class="text-xl font-bold">URL einfÃ¼gen</h2>
           <button id="close-url-modal" class="text-gray-500 hover:text-gray-700">
             <i data-feather="x"></i>
           </button>
@@ -188,7 +188,7 @@
               </div>
               <div class="ml-3">
                 <p class="text-sm text-yellow-700">
-                  Instagram blockiert oft die direkte Extraktion. Falls es nicht klappt, Text einfügen oder Screenshot hochladen.
+                  Instagram blockiert oft die direkte Extraktion. Falls es nicht klappt, Text einfÃ¼gen oder Screenshot hochladen.
                 </p>
               </div>
             </div>
@@ -205,13 +205,13 @@
     <div id="text-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-40 hidden">
       <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Text einfühen</h2>
+          <h2 class="text-xl font-bold">Text einfÃ¼hen</h2>
           <button id="close-text-modal" class="text-gray-500 hover:text-gray-700">
             <i data-feather="x"></i>
           </button>
         </div>
         <div class="space-y-4">
-          <textarea id="recipe-text" rows="10" placeholder="Füge hier den Rezepttext ein..."
+          <textarea id="recipe-text" rows="10" placeholder="FÃ¼ge hier den Rezepttext ein..."
             class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
           <button id="parse-text" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center">
             <i data-feather="edit" class="mr-2"></i>
@@ -272,7 +272,7 @@
       });
     }
 
-    // Import-Brücke für Share-Target und ?import=
+    // Import-BrÃ¼cke fÃ¼r Share-Target und ?import=
     document.addEventListener('DOMContentLoaded', async () => {
       // 1) Aus share.html via localStorage
       const raw = localStorage.getItem('snackbook:import');
@@ -286,7 +286,7 @@
           }
         } catch(e){}
       }
-      // 2) Direkt über ?import=
+      // 2) Direkt Ã¼ber ?import=
       const params = new URLSearchParams(location.search);
       const q = params.get('import');
       if (q) {
@@ -324,3 +324,5 @@
   </script>
 </body>
 </html>
+
+

@@ -1,14 +1,16 @@
-<!doctype html><html lang="de"><meta charset="utf-8">
-<title>Daten löschen – Snackbook</title>
+﻿<!doctype html><html lang="de"><meta charset="utf-8">
+<title>Daten lÃ¶schen â€“ Snackbook</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{font:16px system-ui;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6}button{font:16px;padding:10px 16px}</style>
-<h1>Daten löschen</h1>
-<p>Hier können Sie lokal gespeicherte Daten (Rezepte, Einstellungen) löschen.</p>
-<button id="wipe">Alle lokalen Daten löschen</button>
+<h1>Daten lÃ¶schen</h1>
+<p>Hier kÃ¶nnen Sie lokal gespeicherte Daten (Rezepte, Einstellungen) lÃ¶schen.</p>
+<button id="wipe">Alle lokalen Daten lÃ¶schen</button>
 <p id="status"></p>
 <script>
 document.getElementById('wipe').onclick=()=>{
   localStorage.clear(); indexedDB.databases?.().then(dbs=>dbs.forEach(d=>indexedDB.deleteDatabase(d.name)));
-  document.getElementById('status').textContent='Lokale Daten wurden gelöscht.';
+  document.getElementById('status').textContent='Lokale Daten wurden gelÃ¶scht.';
 };
 </script>
+
+

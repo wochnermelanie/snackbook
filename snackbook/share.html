@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <meta charset="utf-8">
 <title>Share Import</title>
 <script>
@@ -8,9 +8,11 @@
   try { data = JSON.parse(decodeURIComponent(hash)); } catch(e){}
   const input = data.url || data.text || '';
   if (!input) { alert('Nichts zum Importieren gefunden.'); location.href = '/'; return; }
-  // Übergib den Input an die App
+  // Ãœbergib den Input an die App
   localStorage.setItem('snackbook:import', JSON.stringify({ input, ts: Date.now() }));
-  // zurück zur App
+  // zurÃ¼ck zur App
   location.href = '/';
 })();
 </script>
+
+

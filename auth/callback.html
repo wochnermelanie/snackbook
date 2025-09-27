@@ -1,15 +1,17 @@
-<!doctype html><html lang="de"><meta charset="utf-8">
-<title>Instagram Callback – Snackbook</title>
+﻿<!doctype html><html lang="de"><meta charset="utf-8">
+<title>Instagram Callback â€“ Snackbook</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{font:16px system-ui;max-width:760px;margin:40px auto;padding:0 20px}</style>
 <h1>Verbunden</h1>
 <p>Wenn Sie nicht automatisch weitergeleitet werden, <a id="home" href="/">hier klicken</a>.</p>
 <script>
-/* Platzhalter: liest ?code=… oder Fehler und leitet zur App zurück. 
-   Später tauschen wir den Code in einer Netlify Function gegen Tokens. */
+/* Platzhalter: liest ?code=â€¦ oder Fehler und leitet zur App zurÃ¼ck. 
+   SpÃ¤ter tauschen wir den Code in einer Netlify Function gegen Tokens. */
 const qs=new URLSearchParams(location.search);
 const code=qs.get('code'); const err=qs.get('error');
 sessionStorage.setItem('ig_oauth_code', code||'');
 sessionStorage.setItem('ig_oauth_error', err||'');
 location.replace('/');
 </script>
+
+

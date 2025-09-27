@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "snackbook-functions",
   "version": "1.0.0",
   "private": true,
@@ -8,3 +8,4 @@
     "linkedom": "^0.18.0"
   }
 }
+
